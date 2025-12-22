@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1976d2">
+  <title>出品登録 - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📦 出品登録</div>
+      <button class="btn btn-outline" style="padding: 8px 16px; font-size: 14px;" onclick="window.location.href='/home.html'">
+        戻る
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="main-content">
+    <div class="container" style="max-width: 800px;">
+      <form id="registerForm">
+        <!-- ステップ1: 基本情報 -->
+        <div id="step1">
+          <div class="card">
+            <h2 class="card-title">Step 1: 基本情報</h2>
+            
+            <!-- 写真 -->
+            <div class="form-group">
+              <label class="form-label required">写真（最大5枚）</label>
+              <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
+              <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                <div class="image-upload-icon">📷</div>
+                <div>タップして写真を選択</div>
+                <small class="form-help">最大5枚まで（各5MB以下）</small>
+              </div>
+              <div id="imagePreviewContainer" class="image-preview-container"></div>
+            </div>
+            
+            <!-- 大分類 -->
+            <div class="form-group">
+              <label class="form-label required" for="largeCategory">大分類</label>
+              <select class="form-select" id="largeCategory" required>
+                <option value="">選択してください</option>
+                <option value="机類">机類</option>
+                <option value="椅子類">椅子類</option>
+                <option value="PC・周辺機器">PC・周辺機器</option>
+                <option value="教材・備品">教材・備品</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+            
+            <!-- 中分類 -->
+            <div class="form-group">
+              <label class="form-label required" for="mediumCategory">中分類</label>
+              <select class="form-select" id="mediumCategory" required>
+                <option value="">まず大分類を選択してください</option>
+              </select>
+            </div>
+            
+            <!-- 品名 -->
+            <div class="form-group">
+              <label class="form-label required" for="itemName">品名</label>
+              <input type="text" class="form-input" id="itemName" placeholder="例: 生徒用机（木製）" required>
+            </div>
+            
+            <!-- 数量 -->
+            <div class="form-group">
+              <label class="form-label required" for="quantity">数量</label>
+              <input type="number" class="form-input" id="quantity" min="1" value="1" required>
+            </div>
+            
+            <!-- サイズ -->
+            <div class="form-group">
+              <label class="form-label" for="size">サイズ</label>
+              <input type="text" class="form-input" id="size" placeholder="例: W120×D60×H70cm">
+              <small class="form-help">任意項目</small>
+            </div>
+            
+            <!-- 状態の詳細 -->
+            <div class="form-group">
+              <label class="form-label" for="condition">状態の詳細</label>
+              <textarea class="form-textarea" id="condition" placeholder="傷や汚れ、使用感などの詳細"></textarea>
+              <small class="form-help">任意項目</small>
+            </div>
+          </div>
+          
+          <button type="button" class="btn btn-primary btn-block btn-large mt-3" onclick="goToStep2()">
+            次へ：経費振替と利用状況 →
+          </button>
+        </div>
+
+        <!-- ステップ2: 経費振替と利用状況 -->
+        <div id="step2" style="display: none;">
+          <div class="card">
+            <h2 class="card-title">Step 2: 経費振替と利用状況</h2>
+            
+            <!-- 経費振替額 -->
+            <div class="form-group">
+              <label class="form-label required" for="transferCost">経費振替額（円）</label>
+              <input type="number" class="form-input" id="transferCost" min="0" value="0" required>
+              <small class="form-help">受け取り拠点が負担する金額</small>
+            </div>
+            
+            <!-- 利用状況 -->
+            <div class="form-group">
+              <label class="form-label required">利用状況</label>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px;">
+                  <input type="radio" name="usageStatus" value="未使用" required>
+                  <span>未使用</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                  <input type="radio" name="usageStatus" value="稼働中" required>
+                  <span>稼働中</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                  <input type="radio" name="usageStatus" value="故障" required>
+                  <span>故障</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 備考 -->
+            <div class="form-group">
+              <label class="form-label" for="notes">備考</label>
+              <textarea class="form-textarea" id="notes" placeholder="その他、特記事項があれば記入してください"></textarea>
+              <small class="form-help">任意項目</small>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <button type="button" class="btn btn-outline btn-block btn-large" onclick="goToStep1()">
+              ← 戻る
+            </button>
+            <button type="submit" class="btn btn-success btn-block btn-large" id="submitBtn">
+              出品する
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- ボトムナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+    <a href="/register.html" class="nav-item active">
+      <span class="nav-icon">➕</span>
+      <span>出品</span>
+    </a>
+    <a href="/my-items.html" class="nav-item">
+      <span class="nav-icon">📋</span>
+      <span>自分の出品</span>
+    </a>
+    <a href="/admin.html" class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      <span>管理</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/register.js"></script>
+</body>
+</html>

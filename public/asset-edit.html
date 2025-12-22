@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976d2">
+  <title>資産編集 - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <button onclick="history.back()" class="btn" style="margin-right: 1rem;">← 戻る</button>
+      <div class="header-title">✏️ 資産編集</div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div id="loading" style="text-align: center; padding: 2rem;">
+      <p>読み込み中...</p>
+    </div>
+    
+    <form id="editForm" style="display: none;">
+      <div class="form-group">
+        <label>資産名 *</label>
+        <input type="text" id="assetName" required>
+      </div>
+      
+      <div class="form-group">
+        <label>メモ・説明</label>
+        <textarea id="memo" rows="4"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>サイズ (W×D×H cm)</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="number" id="width" placeholder="幅" style="flex: 1;">
+          <span>×</span>
+          <input type="number" id="depth" placeholder="奥行" style="flex: 1;">
+          <span>×</span>
+          <input type="number" id="height" placeholder="高さ" style="flex: 1;">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>現在の画像</label>
+        <div id="currentImages" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%;">
+        💾 保存する
+      </button>
+    </form>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/asset-edit.js"></script>
+</body>
+</html>

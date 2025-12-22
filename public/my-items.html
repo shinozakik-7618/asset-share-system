@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976d2">
+  <title>資産管理 - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📋 資産管理</div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div id="loading" style="text-align: center; padding: 2rem;">
+      <p>読み込み中...</p>
+    </div>
+    
+    <div id="content" style="display: none;">
+      <div id="itemsList"></div>
+      <div id="noItems" style="display: none; text-align: center; padding: 4rem 2rem; color: #666;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+        <p>登録された資産がありません</p>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item"><span class="nav-icon">🏠</span><span>ホーム</span></a>
+    <a href="/asset-register.html" class="nav-item"><span class="nav-icon">➕</span><span>登録</span></a>
+    <a href="/my-items.html" class="nav-item active"><span class="nav-icon">📋</span><span>管理</span></a>
+  </nav>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/my-items.js"></script>
+</body>
+</html>

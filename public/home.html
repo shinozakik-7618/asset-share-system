@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976d2">
+  <title>ホーム - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  
+  <style>
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 1rem;
+    }
+    .filter-chip {
+      padding: 10px 20px;
+      font-size: 15px;
+      min-width: auto;
+      white-space: nowrap;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .filter-chip:hover {
+      border-color: #1976d2;
+      background: #e3f2fd;
+    }
+    .filter-chip.active {
+      background: #1976d2;
+      color: white;
+      border-color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📦 拠点資産シェアシステム</div>
+      <div class="header-user">
+        <div class="header-user-info" id="userInfo">
+          <div class="header-user-name">読み込み中...</div>
+          <div class="header-user-base"></div>
+        </div>
+        <button class="btn" style="padding: 8px 16px; font-size: 14px; background: #1976d2; color: white; border: 2px solid white;" onclick="signOut()">
+          ログアウト
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 資産を検索..." class="search-input">
+    </div>
+
+    <div class="filter-chips">
+      <button class="filter-chip active" data-filter="all">すべて</button>
+      <button class="filter-chip" data-filter="PC・IT機器">PC・IT機器</button>
+      <button class="filter-chip" data-filter="机">机</button>
+      <button class="filter-chip" data-filter="椅子">椅子</button>
+      <button class="filter-chip" data-filter="事務用品・備品">事務用品・備品</button>
+      <button class="filter-chip" data-filter="什器等">什器等</button>
+      <button class="filter-chip" data-filter="媒体">媒体</button>
+      <button class="filter-chip" data-filter="デポ備品">デポ備品</button>
+      <button class="filter-chip" data-filter="その他">その他</button>
+    </div>
+
+    <div class="sort-buttons">
+      <button class="sort-btn active" data-sort="newest">新着順</button>
+      <button class="sort-btn" data-sort="oldest">登録順</button>
+      <button class="sort-btn" data-sort="name">名前順</button>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>読み込み中...</p>
+    </div>
+
+    <div id="itemList" class="item-grid" style="display: none;"></div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-icon">📦</div>
+      <p class="empty-message">登録された資産がありません</p>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+    <a href="/asset-register.html" class="nav-item">
+      <span class="nav-icon">➕</span>
+      <span>登録</span>
+    </a>
+    <a href="/my-items.html" class="nav-item">
+      <span class="nav-icon">📋</span>
+      <span>管理</span>
+    </a>
+  </nav>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

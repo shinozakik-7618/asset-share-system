@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拠点マスタ管理</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .base-master-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .master-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .base-table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .base-table th, .base-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .base-table th { background: #f5f5f5; font-weight: 600; }
+    .loading { text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">拠点マスタ管理</h1>
+      <div class="header-actions">
+        <button onclick="goToHome()" class="btn-secondary">ホームへ戻る</button>
+      </div>
+    </div>
+  </header>
+  <main class="base-master-container">
+    <div class="master-header">
+      <h2>登録済み拠点一覧 (<span id="baseCount">0</span>件)</h2>
+    </div>
+    <div id="loading" class="loading">読み込み中...</div>
+    <table id="baseTable" class="base-table" style="display: none;">
+      <thead>
+        <tr><th>ブロック</th><th>地域</th><th>拠点名</th><th>拠点ID</th></tr>
+      </thead>
+      <tbody id="baseTableBody"></tbody>
+    </table>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/base-master.js"></script>
+</body>
+</html>
+

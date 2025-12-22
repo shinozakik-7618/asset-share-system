@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976d2">
+  <title>QRコード - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  
+  <style>
+    .qr-container { max-width: 600px; margin: 0 auto; padding: 2rem; text-align: center; }
+    .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .success-message { font-size: 1.5rem; font-weight: bold; color: #2e7d32; margin-bottom: 2rem; }
+    .asset-info { background: #f5f5f5; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: left; }
+    .asset-info-item { margin-bottom: 0.5rem; font-size: 0.95rem; }
+    .qr-code-box { background: white; border: 2px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; }
+    .qr-code-image { max-width: 300px; width: 100%; height: auto; }
+    .asset-url { font-size: 0.85rem; color: #666; word-break: break-all; margin-top: 1rem; }
+    .button-group { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
+    @media print { .button-group, .bottom-nav, header { display: none; } .qr-container { padding: 0; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📦 QRコード生成完了</div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div class="qr-container">
+      <div class="success-icon">✅</div>
+      <div class="success-message">資産登録が完了しました!</div>
+      
+      <div class="asset-info">
+        <div class="asset-info-item"><strong>品名:</strong> <span id="assetName">-</span></div>
+        <div class="asset-info-item"><strong>カテゴリ:</strong> <span id="assetCategory">-</span></div>
+        <div class="asset-info-item"><strong id="assetQuantity">数量: -</strong></div>
+      </div>
+      
+      <div class="qr-code-box">
+        <h3 style="margin-bottom: 1rem;">資産QRコード</h3>
+        <img id="qrCodeImage" class="qr-code-image" alt="QRコード">
+        <p class="asset-url" id="assetUrl"></p>
+      </div>
+      
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="printQRCode()">🖨️ 印刷する</button>
+        <button class="btn btn-secondary" onclick="goToHome()">🏠 ホームへ</button>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item"><span class="nav-icon">🏠</span><span>ホーム</span></a>
+    <a href="/asset-register.html" class="nav-item"><span class="nav-icon">➕</span><span>登録</span></a>
+    <a href="/my-items.html" class="nav-item"><span class="nav-icon">📋</span><span>管理</span></a>
+  </nav>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/qr-code.js"></script>
+</body>
+</html>

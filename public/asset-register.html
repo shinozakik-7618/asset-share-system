@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976d2">
+  <title>資産登録 - 拠点資産シェアシステム</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  
+  <style>
+    .size-inputs {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .size-input-group {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .size-input-group label {
+      font-weight: bold;
+      min-width: 20px;
+    }
+    .size-input-group input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📦 資産登録</div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div class="form-container">
+      <form id="registerForm">
+        <div class="form-group">
+          <label class="form-label required" for="imageInput">写真</label>
+          <input type="file" class="form-input" id="imageInput" accept="image/*" multiple required>
+          <small class="form-help">最大5枚まで選択できます</small>
+          <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required" for="largeCategory">大分類</label>
+          <select class="form-select" id="largeCategory" required>
+            <option value="">選択してください</option>
+            <option value="PC・IT機器">PC・IT機器</option>
+            <option value="机">机</option>
+            <option value="椅子">椅子</option>
+            <option value="事務用品・備品">事務用品・備品</option>
+            <option value="什器等">什器等</option>
+            <option value="媒体">媒体</option>
+            <option value="デポ備品">デポ備品</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required" for="mediumCategory">中分類</label>
+          <select class="form-select" id="mediumCategory" required>
+            <option value="">大分類を選択してください</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required" for="itemName">品名</label>
+          <input type="text" class="form-input" id="itemName" placeholder="例: ノートPC ThinkPad X1" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">サイズ (mm)</label>
+          <div class="size-inputs">
+            <div class="size-input-group">
+              <label>W</label>
+              <input type="number" class="form-input" id="sizeW" placeholder="幅" min="0">
+            </div>
+            <div class="size-input-group">
+              <label>D</label>
+              <input type="number" class="form-input" id="sizeD" placeholder="奥行" min="0">
+            </div>
+            <div class="size-input-group">
+              <label>H</label>
+              <input type="number" class="form-input" id="sizeH" placeholder="高さ" min="0">
+            </div>
+          </div>
+          <small class="form-help">任意項目</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required" for="quantity">数量</label>
+          <input type="number" class="form-input" id="quantity" min="1" value="1" required>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block btn-large" id="submitBtn">
+            資産を登録する
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/home.html" class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+    <a href="/asset-register.html" class="nav-item active">
+      <span class="nav-icon">➕</span>
+      <span>登録</span>
+    </a>
+    <a href="/my-items.html" class="nav-item">
+      <span class="nav-icon">📋</span>
+      <span>管理</span>
+    </a>
+  </nav>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/asset-register.js"></script>
+</body>
+</html>

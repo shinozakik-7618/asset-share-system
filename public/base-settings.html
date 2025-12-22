@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拠点設定</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">拠点設定</div>
+    </div>
+  </header>
+  <main class="container main-content">
+    <div id="loading" style="text-align:center;padding:2rem;">読み込み中...</div>
+    <form id="baseForm" style="display:none;">
+      <div class="form-group">
+        <label>ブロック *</label>
+        <select id="blockSelect" required>
+          <option value="">選択してください</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>地域 *</label>
+        <select id="regionSelect" required disabled>
+          <option value="">ブロックを選択してください</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>拠点 *</label>
+        <select id="baseSelect" required disabled>
+          <option value="">地域を選択してください</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">保存</button>
+    </form>
+  </main>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let baseSettingsUser = null;
+    let allBases = [];
+    
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        baseSettingsUser = user;
+        loadAllBases();
+      } else {
+        window.location.href = '/index.html';
+      }
+    });
+
+    async function loadAllBases() {
+      try {
+        const snapshot = await firebase.firestore().collection('baseMaster').get();
+        allBases = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        populateBlocks();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('baseForm').style.display = 'block';
+      } catch(e) {
+        console.error(e);
+        document.getElementById('loading').innerHTML = 'エラー: ' + e.message;
+      }
+    }
+
+    function populateBlocks() {
+      const blocks = {};
+      allBases.forEach(b => {
+        if(b.blockNo && b.block) blocks[b.blockNo] = b.block;
+      });
+      const select = document.getElementById('blockSelect');
+      Object.keys(blocks).sort().forEach(no => {
+        const opt = document.createElement('option');
+        opt.value = no;
+        opt.textContent = blocks[no];
+        select.appendChild(opt);
+      });
+    }
+
+    document.getElementById('blockSelect').addEventListener('change', function() {
+      const blockNo = this.value;
+      const regionSelect = document.getElementById('regionSelect');
+      const baseSelect = document.getElementById('baseSelect');
+      
+      regionSelect.innerHTML = '<option value="">選択してください</option>';
+      regionSelect.disabled = !blockNo;
+      baseSelect.innerHTML = '<option value="">地域を選択してください</option>';
+      baseSelect.disabled = true;
+      
+      if(!blockNo) return;
+      
+      const regions = {};
+      allBases.filter(b => b.blockNo == blockNo).forEach(b => {
+        if(b.regionNo && b.region) regions[b.regionNo] = b.region;
+      });
+      Object.keys(regions).sort().forEach(no => {
+        const opt = document.createElement('option');
+        opt.value = no;
+        opt.textContent = regions[no];
+        regionSelect.appendChild(opt);
+      });
+    });
+
+    document.getElementById('regionSelect').addEventListener('change', function() {
+      const blockNo = document.getElementById('blockSelect').value;
+      const regionNo = this.value;
+      const baseSelect = document.getElementById('baseSelect');
+      
+      baseSelect.innerHTML = '<option value="">選択してください</option>';
+      baseSelect.disabled = !regionNo;
+      
+      if(!regionNo) return;
+      
+      allBases.filter(b => b.blockNo == blockNo && b.regionNo == regionNo)
+        .sort((a,b) => (a.baseNo||'').localeCompare(b.baseNo||''))
+        .forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b.id;
+          opt.textContent = b.baseName;
+          baseSelect.appendChild(opt);
+        });
+    });
+
+    document.getElementById('baseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const baseId = document.getElementById('baseSelect').value;
+      try {
+        await firebase.firestore().collection('users').doc(baseSettingsUser.uid).set({
+          email: baseSettingsUser.email,
+          baseId: baseId,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        alert('保存しました');
+        window.location.href = '/home.html';
+      } catch(e) {
+        alert('エラー: ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>

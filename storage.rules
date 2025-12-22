@@ -1,0 +1,35 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ユーザーが認証済みかチェック
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // 画像ファイルかチェック
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // ファイルサイズチェック（5MB以下）
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+    
+    // items/ 配下の画像
+    match /items/{itemId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      isImage() && 
+                      isValidSize();
+      allow delete: if isAuthenticated();
+    }
+    
+    // その他のファイル（管理者のみ）
+    match /{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}
