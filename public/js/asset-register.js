@@ -13,7 +13,7 @@ const mediumCategories = {
 let selectedImages = [];
 let uploadedImageUrls = [];
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   // 拠点設定チェック
   
   // 大分類変更イベント

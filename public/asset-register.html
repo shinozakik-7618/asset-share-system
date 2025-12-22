@@ -3,133 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1976d2">
-  <title>資産登録 - 拠点資産シェアシステム</title>
-  
-  <link rel="manifest" href="/manifest.json">
+  <title>資産登録</title>
   <link rel="stylesheet" href="/css/style.css">
-  
+</head>
+<body>
+  <div class="container">
+    <h1>📦 資産登録</h1>
+    
+    <form id="registerForm">
+      <!-- 写真アップロード方法選択 -->
+      <div class="form-group">
+        <label>📷 写真アップロード方法</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <button type="button" id="cameraBtn" class="btn-secondary">📸 カメラで撮影</button>
+          <button type="button" id="fileBtn" class="btn-secondary">📁 ファイルから選択</button>
+        </div>
+        <input type="file" id="cameraInput" accept="image/jpeg,image/jpg,image/png" capture="environment" multiple style="display:none">
+        <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png" multiple style="display:none">
+        
+        <!-- ドラッグ&ドロップエリア -->
+        <div id="dropArea" style="border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 8px; background: #f9f9f9; display: none;">
+          ここに画像をドラッグ&ドロップ<br>または上のボタンで選択
+        </div>
+        
+        <!-- プレビュー表示 -->
+        <div id="imagePreview" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
+        <small style="color: #666;">最大5枚まで選択可能</small>
+      </div>
+
+      <div class="form-group">
+        <label for="assetName">資産名 <span style="color:red;">*</span></label>
+        <input type="text" id="assetName" required>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">数量 <span style="color:red;">*</span></label>
+        <input type="number" id="quantity" min="1" value="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="largeCategory">大分類 <span style="color:red;">*</span></label>
+        <select id="largeCategory" required>
+          <option value="">選択してください</option>
+          <option value="PC・IT機器">PC・IT機器</option>
+          <option value="机">机</option>
+          <option value="椅子">椅子</option>
+          <option value="事務用品・備品">事務用品・備品</option>
+          <option value="什器等">什器等</option>
+          <option value="媒体">媒体</option>
+          <option value="デポ備品">デポ備品</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="mediumCategory">中分類 <span style="color:red;">*</span></label>
+        <select id="mediumCategory" required disabled>
+          <option value="">大分類を選択してください</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>サイズ (cm)</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="number" id="width" placeholder="幅" style="flex: 1;">
+          <span style="line-height: 40px;">×</span>
+          <input type="number" id="depth" placeholder="奥行" style="flex: 1;">
+          <span style="line-height: 40px;">×</span>
+          <input type="number" id="height" placeholder="高さ" style="flex: 1;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="memo">メモ</label>
+        <textarea id="memo" rows="3"></textarea>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-primary">登録する</button>
+    </form>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  
-  <style>
-    .size-inputs {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .size-input-group {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .size-input-group label {
-      font-weight: bold;
-      min-width: 20px;
-    }
-    .size-input-group input {
-      flex: 1;
-    }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div class="container header-content">
-      <div class="header-title">📦 資産登録</div>
-    </div>
-  </header>
-
-  <main class="container main-content">
-    <div class="form-container">
-      <form id="registerForm">
-        <div class="form-group">
-          <label class="form-label required" for="imageInput">写真</label>
-          <input type="file" class="form-input" id="imageInput" accept="image/*" multiple required>
-          <small class="form-help">最大5枚まで選択できます</small>
-          <div id="imagePreview" class="image-preview"></div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required" for="largeCategory">大分類</label>
-          <select class="form-select" id="largeCategory" required>
-            <option value="">選択してください</option>
-            <option value="PC・IT機器">PC・IT機器</option>
-            <option value="机">机</option>
-            <option value="椅子">椅子</option>
-            <option value="事務用品・備品">事務用品・備品</option>
-            <option value="什器等">什器等</option>
-            <option value="媒体">媒体</option>
-            <option value="デポ備品">デポ備品</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required" for="mediumCategory">中分類</label>
-          <select class="form-select" id="mediumCategory" required>
-            <option value="">大分類を選択してください</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required" for="itemName">品名</label>
-          <input type="text" class="form-input" id="itemName" placeholder="例: ノートPC ThinkPad X1" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">サイズ (mm)</label>
-          <div class="size-inputs">
-            <div class="size-input-group">
-              <label>W</label>
-              <input type="number" class="form-input" id="sizeW" placeholder="幅" min="0">
-            </div>
-            <div class="size-input-group">
-              <label>D</label>
-              <input type="number" class="form-input" id="sizeD" placeholder="奥行" min="0">
-            </div>
-            <div class="size-input-group">
-              <label>H</label>
-              <input type="number" class="form-input" id="sizeH" placeholder="高さ" min="0">
-            </div>
-          </div>
-          <small class="form-help">任意項目</small>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required" for="quantity">数量</label>
-          <input type="number" class="form-input" id="quantity" min="1" value="1" required>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary btn-block btn-large" id="submitBtn">
-            資産を登録する
-          </button>
-        </div>
-      </form>
-    </div>
-  </main>
-
-  <nav class="bottom-nav">
-    <a href="/home.html" class="nav-item">
-      <span class="nav-icon">🏠</span>
-      <span>ホーム</span>
-    </a>
-    <a href="/asset-register.html" class="nav-item active">
-      <span class="nav-icon">➕</span>
-      <span>登録</span>
-    </a>
-    <a href="/my-items.html" class="nav-item">
-      <span class="nav-icon">📋</span>
-      <span>管理</span>
-    </a>
-  </nav>
-
   <script src="/js/config.js"></script>
-  <script src="/js/common.js"></script>
   <script src="/js/auth.js"></script>
-  <script src="/js/asset-register.js"></script>
+  <script src="/js/asset-register-improved.js"></script>
 </body>
 </html>

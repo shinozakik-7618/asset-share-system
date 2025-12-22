@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>譲渡申請</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📦 譲渡申請</h1>
+    
+    <div id="assetInfo" style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <h3>資産情報</h3>
+      <div id="assetDetails">読み込み中...</div>
+    </div>
+
+    <form id="transferForm">
+      <div class="form-group">
+        <label for="toBaseId">譲渡先拠点 <span style="color:red;">*</span></label>
+        <select id="toBaseId" required>
+          <option value="">選択してください</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reason">譲渡理由 <span style="color:red;">*</span></label>
+        <textarea id="reason" rows="4" required placeholder="譲渡理由を入力してください"></textarea>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-primary">譲渡申請する</button>
+      <button type="button" onclick="history.back()" class="btn-secondary">キャンセル</button>
+    </form>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/transfer-request.js"></script>
+</body>
+</html>

@@ -72,9 +72,11 @@ function createAssetCard(asset) {
         </p>
         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
           <button onclick="editAsset('${asset.id}')" class="btn btn-primary" style="flex: 1; padding: 0.5rem;">編集</button>
+          <button onclick="transferAsset('${asset.id}')" class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">譲渡</button>
           <button onclick="toggleStatus('${asset.id}', '${asset.status}')" class="btn" style="flex: 1; padding: 0.5rem;">
             ${asset.status === 'available' ? '非公開にする' : '公開する'}
           </button>
+          <button onclick="transferAsset('${asset.id}')" class="btn" style="flex: 1; padding: 0.5rem; background: #2196f3; color: white;">譲渡</button>
           <button onclick="deleteAsset('${asset.id}', '${asset.assetName || ''}', ${JSON.stringify(asset.images || []).replace(/"/g, '&quot;')})" class="btn" style="flex: 1; padding: 0.5rem; background: #f44336; color: white;">削除</button>
         </div>
       </div>
@@ -148,4 +150,14 @@ async function deleteAsset(assetId, assetName, images) {
     console.error('削除エラー:', error);
     alert('エラーが発生しました');
   }
+}
+
+// 資産を譲渡
+function transferAsset(assetId) {
+  window.location.href = `/transfer-request.html?id=${assetId}`;
+}
+
+// 譲渡申請画面へ遷移
+function transferAsset(assetId) {
+  window.location.href = `/transfer-request.html?id=${assetId}`;
 }
