@@ -15,7 +15,6 @@ let uploadedImageUrls = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   // 拠点設定チェック
-  }
   
   // 大分類変更イベント
   document.getElementById('largeCategory').addEventListener('change', updateMediumCategory);
