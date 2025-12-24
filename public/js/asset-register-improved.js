@@ -228,55 +228,56 @@ function convertToJpeg(file) {
 }
 
 // フォーム送信
+// handleSubmit関数
 async function handleSubmit(e) {
-  const userData = await getCurrentUserData();
   e.preventDefault();
   
   if (selectedFiles.length === 0) {
-    alert('写真を1枚以上選択してください');
+    alert("写真を1枚以上選択してください");
     return;
   }
 
-  const submitBtn = document.getElementById('submitBtn');
+  const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = true;
-  submitBtn.textContent = '登録中...';
+  submitBtn.textContent = "登録中...";
 
   try {
-    // 画像アップロード
+    const userData = await getCurrentUserData();
+    console.log("ユーザーデータ:", userData);
+
     const imageUrls = await uploadImages();
 
-    // 資産データ作成
     const assetData = {
-      assetName: document.getElementById('assetName').value,
-      quantity: parseInt(document.getElementById('quantity').value),
-      largeCategory: document.getElementById('largeCategory').value,
-      mediumCategory: document.getElementById('mediumCategory').value,
+      assetName: document.getElementById("assetName").value,
+      quantity: parseInt(document.getElementById("quantity").value),
+      largeCategory: document.getElementById("largeCategory").value,
+      mediumCategory: document.getElementById("mediumCategory").value,
       size: {
-        width: document.getElementById('width').value || null,
-        depth: document.getElementById('depth').value || null,
-        height: document.getElementById('height').value || null
+        width: document.getElementById("width").value || null,
+        depth: document.getElementById("depth").value || null,
+        height: document.getElementById("height").value || null
       },
-      memo: document.getElementById('memo').value || '',
+      memo: document.getElementById("memo").value || "",
       images: imageUrls,
       userId: firebase.auth().currentUser.uid,
       userEmail: firebase.auth().currentUser.email,
-      baseId: localStorage.getItem('selectedBaseId') || '',
-      baseName: localStorage.getItem('selectedBaseName') || '',
-      status: 'available',
+      baseId: userData?.baseId || "",
+      baseName: userData?.baseName || "",
+      status: "available",
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    // Firestore保存
-    await firebase.firestore().collection('assets').add(assetData);
+    console.log("資産データ:", assetData);
+    await firebase.firestore().collection("assets").add(assetData);
 
-    alert('資産を登録しました！');
-    window.location.href = '/my-items.html';
+    alert("資産を登録しました！");
+    window.location.href = "/my-items.html";
 
   } catch (error) {
-    console.error('登録エラー:', error);
-    alert('登録に失敗しました: ' + error.message);
+    console.error("登録エラー:", error);
+    alert("登録に失敗しました: " + error.message);
     submitBtn.disabled = false;
-    submitBtn.textContent = '登録する';
+    submitBtn.textContent = "登録する";
   }
 }
 
