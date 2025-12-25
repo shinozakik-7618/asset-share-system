@@ -146,7 +146,7 @@ function addFiles(files) {
 // プレビュー表示
 function displayPreview(file) {
   const preview = document.getElementById('imagePreview');
-  const index = selectedFiles.length - 1;
+  const fileIndex = selectedFiles.length - 1;
 
   const container = document.createElement('div');
   container.style.cssText = 'position: relative; width: 100px; height: 100px;';
@@ -165,7 +165,7 @@ function displayPreview(file) {
   removeBtn.type = 'button';
   removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;';
   removeBtn.onclick = () => {
-    selectedFiles.splice(index, 1);
+    selectedFiles.splice(fileIndex, 1);
     container.remove();
   };
 
