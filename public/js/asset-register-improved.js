@@ -13,66 +13,6 @@ const mediumCategories = {
 let selectedFiles = [];
 
 // DOM読み込み完了後
-document.addEventListener('DOMContentLoaded', async () => {
-  // 拠点設定チェック
-  const hasBase = await showBaseSelectModal();
-  if (!hasBase) {
-    window.location.href = '/home.html';
-    return;
-  }
-
-  const cameraBtn = document.getElementById('cameraBtn');
-  const fileBtn = document.getElementById('fileBtn');
-  const cameraInput = document.getElementById('cameraInput');
-  const fileInput = document.getElementById('fileInput');
-  const dropArea = document.getElementById('dropArea');
-  const imagePreview = document.getElementById('imagePreview');
-  const largeCategorySelect = document.getElementById('largeCategory');
-  const registerForm = document.getElementById('registerForm');
-
-  // カメラボタン
-  cameraBtn.addEventListener('click', () => {
-    cameraInput.click();
-  });
-
-  // ファイル選択ボタン
-  fileBtn.addEventListener('click', () => {
-    fileInput.click();
-    dropArea.style.display = 'block';
-  });
-
-  // カメラ入力
-  cameraInput.addEventListener('change', handleFileSelect);
-
-  // ファイル入力
-  fileInput.addEventListener('change', handleFileSelect);
-
-  // ドラッグ&ドロップ
-  dropArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropArea.style.background = '#e3f2fd';
-  });
-
-  dropArea.addEventListener('dragleave', () => {
-    dropArea.style.background = '#f9f9f9';
-  });
-
-  dropArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropArea.style.background = '#f9f9f9';
-    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    addFiles(files);
-  });
-
-  // 大分類変更
-  largeCategorySelect.addEventListener('change', updateMediumCategory);
-
-  // フォーム送信
-  registerForm.addEventListener('submit', handleSubmit);
-});
-
-// 以降は既存のコードをそのままコピー
-// DOM読み込み完了後
 document.addEventListener('DOMContentLoaded', () => {
   const cameraBtn = document.getElementById('cameraBtn');
   const fileBtn = document.getElementById('fileBtn');
@@ -146,7 +86,7 @@ function addFiles(files) {
 // プレビュー表示
 function displayPreview(file) {
   const preview = document.getElementById('imagePreview');
-  const fileIndex = selectedFiles.length - 1;
+  const index = selectedFiles.length - 1;
 
   const container = document.createElement('div');
   container.style.cssText = 'position: relative; width: 100px; height: 100px;';
@@ -165,7 +105,7 @@ function displayPreview(file) {
   removeBtn.type = 'button';
   removeBtn.style.cssText = 'position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;';
   removeBtn.onclick = () => {
-    selectedFiles.splice(fileIndex, 1);
+    selectedFiles.splice(index, 1);
     container.remove();
   };
 
@@ -228,56 +168,54 @@ function convertToJpeg(file) {
 }
 
 // フォーム送信
-// handleSubmit関数
 async function handleSubmit(e) {
   e.preventDefault();
   
   if (selectedFiles.length === 0) {
-    alert("写真を1枚以上選択してください");
+    alert('写真を1枚以上選択してください');
     return;
   }
 
-  const submitBtn = document.getElementById("submitBtn");
+  const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
-  submitBtn.textContent = "登録中...";
+  submitBtn.textContent = '登録中...';
 
   try {
-    const userData = await getCurrentUserData();
-    console.log("ユーザーデータ:", userData);
-
+    // 画像アップロード
     const imageUrls = await uploadImages();
 
+    // 資産データ作成
     const assetData = {
-      assetName: document.getElementById("assetName").value,
-      quantity: parseInt(document.getElementById("quantity").value),
-      largeCategory: document.getElementById("largeCategory").value,
-      mediumCategory: document.getElementById("mediumCategory").value,
+      assetName: document.getElementById('assetName').value,
+      quantity: parseInt(document.getElementById('quantity').value),
+      largeCategory: document.getElementById('largeCategory').value,
+      mediumCategory: document.getElementById('mediumCategory').value,
       size: {
-        width: document.getElementById("width").value || null,
-        depth: document.getElementById("depth").value || null,
-        height: document.getElementById("height").value || null
+        width: document.getElementById('width').value || null,
+        depth: document.getElementById('depth').value || null,
+        height: document.getElementById('height').value || null
       },
-      memo: document.getElementById("memo").value || "",
+      memo: document.getElementById('memo').value || '',
       images: imageUrls,
       userId: firebase.auth().currentUser.uid,
       userEmail: firebase.auth().currentUser.email,
-      baseId: userData?.baseId || "",
-      baseName: userData?.baseName || "",
-      status: "available",
+      baseId: localStorage.getItem('selectedBaseId') || '',
+      baseName: localStorage.getItem('selectedBaseName') || '',
+      status: 'available',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    console.log("資産データ:", assetData);
-    await firebase.firestore().collection("assets").add(assetData);
+    // Firestore保存
+    await firebase.firestore().collection('assets').add(assetData);
 
-    alert("資産を登録しました！");
-    window.location.href = "/my-items.html";
+    alert('資産を登録しました！');
+    window.location.href = '/my-items.html';
 
   } catch (error) {
-    console.error("登録エラー:", error);
-    alert("登録に失敗しました: " + error.message);
+    console.error('登録エラー:', error);
+    alert('登録に失敗しました: ' + error.message);
     submitBtn.disabled = false;
-    submitBtn.textContent = "登録する";
+    submitBtn.textContent = '登録する';
   }
 }
 
