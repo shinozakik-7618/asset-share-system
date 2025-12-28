@@ -78,6 +78,7 @@ function displayRequests(snapshot, elementId, showActions) {
           <p><strong>譲渡元:</strong> ${req.fromBaseName || '未設定'}</p>
           <p><strong>譲渡先:</strong> ${req.toBaseName}</p>
           <p><strong>理由:</strong> ${req.reason}</p>
+          <p><strong>受け取り方法:</strong> ${req.deliveryMethod === 'pickup' ? '引取（自分で取りに行く）' : req.deliveryMethod === 'courier' ? '宅急便' : req.deliveryMethod === 'logistics' ? '物流便' : '未選択'}</p>
           <p><strong>申請日:</strong> ${createdAt}</p>
         </div>
         ${showActions ? `
@@ -93,7 +94,7 @@ function displayRequests(snapshot, elementId, showActions) {
   listDiv.innerHTML = html;
 }
 
-async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBaseId, toBaseName, assetName) {
+async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBaseId, toBaseName, assetName, deliveryMethod) {
   if (!confirm('この譲渡申請を承認しますか？\n承認すると経費振替が自動作成されます。')) {
     return;
   }
@@ -136,6 +137,7 @@ async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBa
 
     // メール通知内容を表示
         // メール内容生成（改行を正しく処理）
+        const transferData = { deliveryMethod: deliveryMethod };
         const emailContent = [
           '【経費振替通知】' + assetName + 'の譲渡が承認されました',
           '',
@@ -146,6 +148,7 @@ async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBa
           '振替先拠点: ' + toBaseName,
           '金額: ¥0',
           '理由: ' + assetName + 'の譲渡に伴う経費振替',
+          '受け取り方法: ' + (transferData.deliveryMethod === 'pickup' ? '引取（自分で取りに行く）' : transferData.deliveryMethod === 'courier' ? '宅急便' : transferData.deliveryMethod === 'logistics' ? '物流便' : '未選択'),
           '振替日: ' + new Date().toLocaleDateString('ja-JP'),
           '',
           '詳細はこちら:',

@@ -96,6 +96,7 @@ async function handleSubmit(e) {
       toBaseId: toBaseId,
       toBaseName: toBaseName,
       reason: document.getElementById('reason').value,
+      deliveryMethod: document.getElementById('deliveryMethod').value,
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
