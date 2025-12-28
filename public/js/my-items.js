@@ -73,6 +73,7 @@ function createAssetCard(asset) {
         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
           <button onclick="editAsset('${asset.id}')" class="btn btn-primary" style="flex: 1; padding: 0.5rem;">編集</button>
           <button onclick="transferAsset('${asset.id}')" class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">譲渡</button>
+          ${!asset.forTransfer ? `<button onclick="publishForTransfer('${asset.id}'); event.stopPropagation();" class="btn" style="flex: 1; padding: 0.5rem; background: #4caf50; color: white;">譲渡資産として公開</button>` : `<span style="flex: 1; padding: 0.5rem; background: #e8f5e9; color: #2e7d32; text-align: center; border-radius: 4px; font-size: 13px;">✓ 公開中</span>`}
           <button onclick="toggleStatus('${asset.id}', '${asset.status}')" class="btn" style="flex: 1; padding: 0.5rem;">
             ${asset.status === 'available' ? '非公開にする' : '公開する'}
           </button>
@@ -153,6 +154,24 @@ async function deleteAsset(assetId, assetName, images) {
 }
 
 // 資産を譲渡
+// 譲渡資産として公開
+async function publishForTransfer(assetId) {
+  if (!confirm('この資産を譲渡資産として公開しますか？\n他の拠点から譲渡申請が来るようになります。')) {
+    return;
+  }
+  
+  try {
+    await firebase.firestore().collection('assets').doc(assetId).update({
+      forTransfer: true
+    });
+    alert('譲渡資産として公開しました！');
+    loadAssets(); // 再読み込み
+  } catch (error) {
+    console.error('公開エラー:', error);
+    alert('公開に失敗しました: ' + error.message);
+  }
+}
+
 function transferAsset(assetId) {
   window.location.href = `/transfer-request.html?id=${assetId}`;
 }

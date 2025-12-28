@@ -1,12 +1,71 @@
 // ホーム画面のJavaScript
 
 let allItems = [];
+let currentTab = 'myBase'; // 'myBase' or 'allBases'
+let currentUserBaseId = null;
+let selectedBlock = '';
+let selectedRegion = '';
+let selectedBase = '';
+let allBases = [];
+let currentMainTab = 'registered'; // 'registered' or 'forTransfer'
 let filteredItems = [];
 let currentFilter = 'all';
 let currentSort = 'newest';
 
 // ページ読み込み時
 document.addEventListener('DOMContentLoaded', async () => {
+  // ユーザーの拠点情報を取得
+  const userData = await getCurrentUserData();
+  if (userData && userData.baseId) {
+    currentUserBaseId = userData.baseId;
+  }
+  
+  // タブ切り替えイベント
+  // メインタブ（登録資産 / 譲渡申請資産）のイベント
+  document.getElementById('tabRegistered').addEventListener('click', () => {
+    currentMainTab = 'registered';
+    document.querySelectorAll('.main-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tabRegistered').classList.add('active');
+    document.getElementById('tabRegistered').style.borderBottom = '3px solid #1976d2';
+    document.getElementById('tabRegistered').style.color = '#1976d2';
+    document.getElementById('tabForTransfer').style.borderBottom = '3px solid transparent';
+    document.getElementById('tabForTransfer').style.color = '#666';
+    applyFilters();
+  });
+  
+  document.getElementById('tabForTransfer').addEventListener('click', () => {
+    currentMainTab = 'forTransfer';
+    document.querySelectorAll('.main-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tabForTransfer').classList.add('active');
+    document.getElementById('tabForTransfer').style.borderBottom = '3px solid #1976d2';
+    document.getElementById('tabForTransfer').style.color = '#1976d2';
+    document.getElementById('tabRegistered').style.borderBottom = '3px solid transparent';
+    document.getElementById('tabRegistered').style.color = '#666';
+    applyFilters();
+  });
+  
+  document.getElementById('tabMyBase').addEventListener('click', () => {
+    currentTab = 'myBase';
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tabMyBase').classList.add('active');
+    document.getElementById('tabMyBase').style.borderBottom = '3px solid #1976d2';
+    document.getElementById('tabMyBase').style.color = '#1976d2';
+    document.getElementById('tabAllBases').style.borderBottom = '3px solid transparent';
+    document.getElementById('tabAllBases').style.color = '#666';
+    applyFilters();
+  });
+  
+  document.getElementById('tabAllBases').addEventListener('click', () => {
+    currentTab = 'allBases';
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tabAllBases').classList.add('active');
+    document.getElementById('tabAllBases').style.borderBottom = '3px solid #1976d2';
+    document.getElementById('tabAllBases').style.color = '#1976d2';
+    document.getElementById('tabMyBase').style.borderBottom = '3px solid transparent';
+    document.getElementById('tabMyBase').style.color = '#666';
+    applyFilters();
+  });
+
   // ユーザー情報表示
   await displayUserInfo();
   
@@ -24,6 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   
   // アイテム一覧を取得
+  await loadBases();
   await loadItems();
 });
 
@@ -40,6 +100,109 @@ async function displayUserInfo() {
 }
 
 // アイテム一覧を取得
+// 拠点マスタを読み込み
+async function loadBases() {
+  try {
+    const snapshot = await db.collection('baseMaster').get();
+    allBases = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // ブロック一覧を作成
+    const blocks = [...new Set(allBases.map(base => base.block).filter(Boolean))].sort();
+    const blockFilter = document.getElementById('blockFilter');
+    blocks.forEach(block => {
+      const option = document.createElement('option');
+      option.value = block;
+      option.textContent = block;
+      blockFilter.appendChild(option);
+    });
+    
+    // フィルターイベント
+    document.getElementById('blockFilter').addEventListener('change', handleBlockChange);
+    document.getElementById('regionFilter').addEventListener('change', handleRegionChange);
+    document.getElementById('baseFilter').addEventListener('change', handleBaseChange);
+    document.getElementById('clearBaseFilter').addEventListener('click', clearBaseFilter);
+    
+  } catch (error) {
+    console.error('拠点マスタ取得エラー:', error);
+  }
+}
+
+function handleBlockChange(e) {
+  selectedBlock = e.target.value;
+  selectedRegion = '';
+  selectedBase = '';
+  
+  const regionFilter = document.getElementById('regionFilter');
+  const baseFilter = document.getElementById('baseFilter');
+  
+  regionFilter.innerHTML = '<option value="">すべての地域</option>';
+  baseFilter.innerHTML = '<option value="">すべての拠点</option>';
+  baseFilter.disabled = true;
+  
+  if (selectedBlock) {
+    const regions = [...new Set(allBases.filter(base => base.block === selectedBlock).map(base => base.region).filter(Boolean))].sort();
+    regions.forEach(region => {
+      const option = document.createElement('option');
+      option.value = region;
+      option.textContent = region;
+      regionFilter.appendChild(option);
+    });
+    regionFilter.disabled = false;
+    document.getElementById('clearBaseFilter').style.display = 'inline-block';
+  } else {
+    regionFilter.disabled = true;
+    document.getElementById('clearBaseFilter').style.display = 'none';
+  }
+  
+  applyFilters();
+}
+
+function handleRegionChange(e) {
+  selectedRegion = e.target.value;
+  selectedBase = '';
+  
+  const baseFilter = document.getElementById('baseFilter');
+  baseFilter.innerHTML = '<option value="">すべての拠点</option>';
+  
+  if (selectedRegion) {
+    const bases = allBases.filter(base => base.block === selectedBlock && base.region === selectedRegion).sort((a, b) => (a.baseName || '').localeCompare(b.baseName || ''));
+    bases.forEach(base => {
+      const option = document.createElement('option');
+      option.value = base.id;
+      option.textContent = base.baseName;
+      baseFilter.appendChild(option);
+    });
+    baseFilter.disabled = false;
+  } else {
+    baseFilter.disabled = true;
+  }
+  
+  applyFilters();
+}
+
+function handleBaseChange(e) {
+  selectedBase = e.target.value;
+  applyFilters();
+}
+
+function clearBaseFilter() {
+  selectedBlock = '';
+  selectedRegion = '';
+  selectedBase = '';
+  
+  document.getElementById('blockFilter').value = '';
+  document.getElementById('regionFilter').value = '';
+  document.getElementById('regionFilter').disabled = true;
+  document.getElementById('baseFilter').value = '';
+  document.getElementById('baseFilter').disabled = true;
+  document.getElementById('clearBaseFilter').style.display = 'none';
+  
+  applyFilters();
+}
+
 async function loadItems() {
   const loading = document.getElementById('loading');
   const itemList = document.getElementById('itemList');
@@ -70,33 +233,67 @@ async function loadItems() {
   }
 }
 
+// フィルター適用
+function applyFilters() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  
+  filteredItems = allItems.filter(item => {
+    // メインタブフィルター（登録資産 / 譲渡申請資産）
+    if (currentMainTab === 'forTransfer') {
+      // 譲渡申請資産: forTransfer が true の資産のみ
+      if (!item.forTransfer) {
+        return false;
+      }
+    }
+    
+    // 拠点フィルター
+    if (selectedBase && item.baseId !== selectedBase) {
+      return false;
+    }
+    if (selectedRegion && !selectedBase) {
+      const baseData = allBases.find(base => base.id === item.baseId);
+      if (!baseData || baseData.region !== selectedRegion) {
+        return false;
+      }
+    }
+    if (selectedBlock && !selectedRegion) {
+      const baseData = allBases.find(base => base.id === item.baseId);
+      if (!baseData || baseData.block !== selectedBlock) {
+        return false;
+      }
+    }
+    
+    // タブフィルター
+    if (currentTab === 'myBase' && currentUserBaseId && item.baseId !== currentUserBaseId) {
+      return false;
+    }
+    
+    // 検索フィルター
+    const matchSearch = !query || 
+      (item.assetName && item.assetName.toLowerCase().includes(query)) ||
+      (item.largeCategory && item.largeCategory.toLowerCase().includes(query)) ||
+      (item.baseName && item.baseName.toLowerCase().includes(query));
+    
+    // 大分類フィルター
+    const matchCategory = currentFilter === 'all' || item.largeCategory === currentFilter;
+    
+    return matchSearch && matchCategory;
+  });
+  
+  renderItems();
+}
+
 // 検索処理
 function handleSearch(e) {
-  const query = e.target.value.toLowerCase();
-  filteredItems = allItems.filter(item => 
-    item.itemName.toLowerCase().includes(query) ||
-    item.largeCategory.toLowerCase().includes(query) ||
-    item.mediumCategory.toLowerCase().includes(query)
-  );
-  renderItems();
+  applyFilters();
 }
 
 // フィルター処理
 function handleFilter(e) {
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.classList.remove('active');
-  });
+  document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
   e.target.classList.add('active');
-  
   currentFilter = e.target.dataset.filter;
-  
-  if (currentFilter === 'all') {
-    filteredItems = [...allItems];
-  } else {
-    filteredItems = allItems.filter(item => item.largeCategory === currentFilter);
-  }
-  
-  renderItems();
+  applyFilters();
 }
 
 // ソート処理
@@ -135,18 +332,22 @@ function renderItems() {
     emptyState.style.display = 'none';
     
     itemList.innerHTML = filteredItems.map(item => `
-      <div class="item-card" onclick="viewItemDetail('${item.id}')">
-        <div class="item-image">
+            <div class="item-card" onclick="viewItemDetail('${item.id}')" style="display: flex; align-items: center; padding: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid #e0e0e0; border-radius: 8px; background: white;">
+        <div class="item-image" style="width: 60px; height: 60px; flex-shrink: 0; margin-right: 15px; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
           ${item.images && item.images.length > 0 
-            ? `<img src="${item.images[0]}" alt="${item.itemName}">` 
-            : '<div class="no-image">📦</div>'}
+            ? `<img src="${item.images[0]}" alt="${item.assetName}" style="width: 100%; height: 100%; object-fit: cover;">` 
+            : '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px;">📦</div>'}
         </div>
-        <div class="item-info">
-          <div class="item-category">${item.largeCategory} / ${item.mediumCategory}</div>
-          <div class="item-name">${item.itemName}</div>
-          <div class="item-quantity">数量: ${item.quantity}</div>
-          <div class="item-owner">登録: ${item.ownerName} (${item.ownerBaseName})</div>
-          <div class="item-date">${formatDate(item.createdAt)}</div>
+        <div class="item-info" style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px; color: #333;">${item.assetName}</div>
+          <div style="font-size: 13px; color: #666; margin-bottom: 2px;">${item.largeCategory} / ${item.mediumCategory}</div>
+          <div style="font-size: 13px; color: #888;">数量: ${item.quantity} | ${item.baseName || '拠点未設定'}</div>
+        </div>
+        ${currentMainTab === 'forTransfer' && item.baseId !== currentUserBaseId ? `
+        <button onclick="requestTransfer('${item.id}'); event.stopPropagation();" style="padding: 6px 12px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; margin-left: 10px;">譲渡を申請</button>
+        ` : ''}
+        <div style="text-align: right; color: #999; font-size: 12px; flex-shrink: 0; margin-left: 10px;">
+          ${formatDate(item.createdAt)}
         </div>
       </div>
     `).join('');
@@ -154,6 +355,11 @@ function renderItems() {
 }
 
 // アイテム詳細表示
+// 譲渡申請
+function requestTransfer(itemId) {
+  window.location.href = `/transfer-request.html?id=${itemId}`;
+}
+
 function viewItemDetail(itemId) {
   window.location.href = `/asset-detail.html?id=${itemId}`;
 }

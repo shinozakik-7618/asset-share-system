@@ -202,6 +202,7 @@ async function handleSubmit(e) {
       baseId: localStorage.getItem('selectedBaseId') || '',
       baseName: localStorage.getItem('selectedBaseName') || '',
       status: 'available',
+      forTransfer: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
