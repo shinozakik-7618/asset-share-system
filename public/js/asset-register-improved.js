@@ -208,9 +208,22 @@ async function handleSubmit(e) {
 
     // Firestore保存
     const docRef = await firebase.firestore().collection('assets').add(assetData);
+
+
+    // QRコード生成（ライブラリが読み込まれている場合のみ）
+    if (typeof window.QRCode !== "undefined") {
+      try {
+        const assetId = docRef.id;
+        const qrCodeDataURL = await window.QRCode.toDataURL(
+          `https://base-asset-sharing-system.web.app/asset-detail.html?id=${assetId}`,
+          { width: 300, margin: 2 }
+        );
+        await docRef.update({ qrCode: qrCodeDataURL });
+      } catch (error) {
+        console.warn("QRコード生成エラー:", error);
+      }
+    }
     
-    // QRコード生成は後で実装
-    // TODO: QRコード機能を追加
 
     alert('資産を登録しました！');
     window.location.href = '/my-items.html';
