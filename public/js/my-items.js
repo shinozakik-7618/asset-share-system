@@ -78,7 +78,6 @@ function createAssetCard(asset) {
           <button onclick="toggleStatus('${asset.id}', '${asset.status}')" class="btn" style="flex: 1; padding: 0.5rem;">
             ${asset.status === 'available' ? '非公開にする' : '公開する'}
           </button>
-          <button onclick="transferAsset('${asset.id}')" class="btn" style="flex: 1; padding: 0.5rem; background: #2196f3; color: white;">譲渡</button>
           <button onclick="deleteAsset('${asset.id}', '${asset.assetName || ''}', ${JSON.stringify(asset.images || []).replace(/"/g, '&quot;')})" class="btn" style="flex: 1; padding: 0.5rem; background: #f44336; color: white;">削除</button>
         </div>
       </div>
