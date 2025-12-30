@@ -196,3 +196,8 @@ function printQRCodeFromURL(qrCodeURL, assetName) {
   `);
   printWindow.document.close();
 }
+
+// 譲渡申請画面へ遷移
+function transferAsset(assetId) {
+  window.location.href = `/transfer-request.html?id=${assetId}`;
+}

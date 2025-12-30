@@ -86,6 +86,11 @@ function displayRequests(snapshot, elementId, showActions) {
             <button class="btn-approve" onclick="approveRequest('${doc.id}', '${req.assetId}', '${req.fromBaseId}', '${req.fromBaseName}', '${req.toBaseId}', '${req.toBaseName}', '${req.assetName}')">承認</button>
             <button class="btn-reject" onclick="rejectRequest('${doc.id}')">却下</button>
           </div>
+` : req.status === 'approved' ? `
+          <div class="action-buttons">
+            <button class="btn-approve" onclick="completeTransfer('${doc.id}', '${req.assetName}', '${req.fromBaseName}', '${req.toBaseName}')">✅ 引き渡し完了</button>
+          </div>
+
         ` : ''}
       </div>
     `;
@@ -195,5 +200,48 @@ async function rejectRequest(requestId) {
   } catch (error) {
     console.error('却下エラー:', error);
     alert('却下に失敗しました: ' + error.message);
+  }
+}
+
+// 引き渡し完了処理
+async function completeTransfer(requestId, assetName, fromBaseName, toBaseName) {
+  if (!confirm('引き渡しを完了しますか？\n\n資産名: ' + assetName + '\n譲渡元: ' + fromBaseName + '\n譲渡先: ' + toBaseName)) {
+    return;
+  }
+
+  try {
+    // ステータスを完了に更新
+    await firebase.firestore().collection('transferRequests').doc(requestId).update({
+      status: 'completed',
+      completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      completedBy: firebase.auth().currentUser.uid
+    });
+
+    // 完了メール内容を生成
+    const subject = encodeURIComponent('【譲渡完了通知】' + assetName + 'の引き渡しが完了しました');
+    const body = encodeURIComponent(`${assetName}の引き渡しが完了しました。
+
+■ 資産情報
+資産名: ${assetName}
+譲渡元: ${fromBaseName}
+譲渡先: ${toBaseName}
+完了日: ${new Date().toLocaleDateString('ja-JP')}
+
+引き渡しが完了しました。`);
+
+    // メール下書きを開く
+    const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+
+    alert('引き渡しを完了しました！\n\nメールの下書きが開きます。');
+
+    // 再読み込み
+    setTimeout(() => {
+      loadTransferRequests();
+    }, 1000);
+
+  } catch (error) {
+    console.error('完了処理エラー:', error);
+    alert('完了処理に失敗しました: ' + error.message);
   }
 }
