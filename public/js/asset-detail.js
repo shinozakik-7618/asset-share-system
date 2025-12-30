@@ -44,13 +44,6 @@ if (!assetId) {
       }
       
       // 資産画像表示
-      if (asset.images && asset.images.length > 0) {
-        const qrImage = document.getElementById('qrCodeImage');
-        if (qrImage && !asset.qrCodeText) {
-          qrImage.src = asset.images[0];
-          qrImage.alt = asset.assetName || '資産画像';
-        }
-      }
     })
     .catch(error => {
       console.error('読み込みエラー:', error);
