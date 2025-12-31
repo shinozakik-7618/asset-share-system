@@ -105,7 +105,16 @@ async function handleSubmit(e) {
     await firebase.firestore().collection('transferRequests').add(transferData);
 
     alert('譲渡申請を送信しました！');
-    window.location.href = '/my-items.html';
+
+    // メール下書き作成
+    const subject = encodeURIComponent(`【譲渡申請】${assetData.assetName}の譲渡申請`);
+    const body = encodeURIComponent(`譲渡申請が送信されました。\n\n■ 資産情報\n資産名: ${assetData.assetName}\n申請者: ${firebase.auth().currentUser.email}\n譲渡元: ${assetData.baseName}\n譲渡先: ${toBaseName}\n理由: ${document.getElementById("reason").value}\n受取方法: ${document.getElementById("deliveryMethod").value}\n\n承認をお願いします。`);
+    const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
+
+    setTimeout(() => {
+      window.location.href = "/my-items.html";
+    }, 1000);
 
   } catch (error) {
     console.error('譲渡申請エラー:', error);
