@@ -1,19 +1,4 @@
 // 中分類マスタ
-// 拠点情報を取得してlocalStorageに保存
-const currentUser = firebase.auth().currentUser;
-if (currentUser) {
-  firebase.firestore().collection('users').doc(currentUser.uid).get().then(userDoc => {
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-      if (userData.baseId) {
-        localStorage.setItem('selectedBaseId', userData.baseId);
-        localStorage.setItem('selectedBaseName', userData.baseName || '');
-        localStorage.setItem('selectedRegion', userData.region || '');
-        localStorage.setItem('selectedBlock', userData.block || '');
-      }
-    }
-  });
-}
 const mediumCategories = {
   'PC・IT機器': ['ノートPC', 'デスクトップPC', 'TV', 'モニター', 'タブレット', 'その他'],
   '机': ['2人用', '4人用', '6人用', '折りたたみ', '丸テーブル', 'その他'],
@@ -277,3 +262,23 @@ async function uploadImages() {
 
   return urls;
 }
+
+// ユーザー情報から拠点情報を取得してlocalStorageに保存
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (user) {
+    try {
+      const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData.baseId) {
+          localStorage.setItem('selectedBaseId', userData.baseId);
+          localStorage.setItem('selectedBaseName', userData.baseName || '');
+          localStorage.setItem('selectedRegion', userData.region || '');
+          localStorage.setItem('selectedBlock', userData.block || '');
+        }
+      }
+    } catch (error) {
+      console.error('ユーザー情報取得エラー:', error);
+    }
+  }
+});
