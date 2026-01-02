@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>譲渡申請一覧 - 拠点資産シェアシステム</title>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📋 譲渡申請一覧</div>
+      <button onclick="location.href='/home.html'" class="btn" style="margin: 10px 0; background: white; color: #1976d2; border: 2px solid #1976d2; font-weight: 500; font-size: 14px;">🏠 ホームに戻る</button>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div id="loading" style="text-align: center; padding: 2rem;">
+      <p>読み込み中...</p>
+    </div>
+    
+    <div id="requestList"></div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/transfer-list.js"></script>
+</body>
+</html>
