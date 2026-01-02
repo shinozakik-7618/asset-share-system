@@ -1,5 +1,6 @@
 let assetId = '';
 let assetData = null;
+let allBases = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   // URLからassetIdを取得
@@ -17,6 +18,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 拠点一覧を読み込み
   await loadBases();
+
+  // ブロック選択時
+  document.getElementById('block').addEventListener('change', handleBlockChange);
+  
+  // 地域選択時
+  document.getElementById('region').addEventListener('change', handleRegionChange);
 
   // フォーム送信
   document.getElementById('transferForm').addEventListener('submit', handleSubmit);
@@ -54,22 +61,89 @@ async function loadAssetInfo() {
 async function loadBases() {
   try {
     const snapshot = await firebase.firestore().collection('baseMaster').get();
-    const select = document.getElementById('toBaseId');
     
     snapshot.forEach(doc => {
       const base = doc.data();
-      // 現在の拠点以外を表示
-      if (doc.id !== assetData.baseId) {
-        const option = document.createElement('option');
-        option.value = doc.id;
-        option.textContent = base.baseName;
-        select.appendChild(option);
-      }
+      allBases.push({
+        id: doc.id,
+        baseName: base.baseName,
+        region: base.region || '',
+        block: base.block || ''
+      });
     });
+    
+    // ブロック一覧を作成
+    const blocks = [...new Set(allBases.map(b => b.block).filter(b => b))];
+    const blockSelect = document.getElementById('block');
+    
+    blocks.forEach(block => {
+      const option = document.createElement('option');
+      option.value = block;
+      option.textContent = block;
+      blockSelect.appendChild(option);
+    });
+    
   } catch (error) {
     console.error('拠点一覧読み込みエラー:', error);
     alert('拠点一覧の読み込みに失敗しました');
   }
+}
+
+// ブロック選択時
+function handleBlockChange() {
+  const block = document.getElementById('block').value;
+  const regionSelect = document.getElementById('region');
+  const baseSelect = document.getElementById('toBaseId');
+  
+  // リセット
+  regionSelect.innerHTML = '<option value="">地域を選択してください</option>';
+  baseSelect.innerHTML = '<option value="">拠点を選択してください</option>';
+  baseSelect.disabled = true;
+  
+  if (!block) {
+    regionSelect.disabled = true;
+    return;
+  }
+  
+  // 地域一覧を作成
+  const regions = [...new Set(allBases.filter(b => b.block === block).map(b => b.region).filter(r => r))];
+  
+  regions.forEach(region => {
+    const option = document.createElement('option');
+    option.value = region;
+    option.textContent = region;
+    regionSelect.appendChild(option);
+  });
+  
+  regionSelect.disabled = false;
+}
+
+// 地域選択時
+function handleRegionChange() {
+  const block = document.getElementById('block').value;
+  const region = document.getElementById('region').value;
+  const baseSelect = document.getElementById('toBaseId');
+  
+  // リセット
+  baseSelect.innerHTML = '<option value="">拠点を選択してください</option>';
+  
+  if (!region) {
+    baseSelect.disabled = true;
+    return;
+  }
+  
+  // 拠点一覧を作成（現在の拠点以外）
+  const bases = allBases.filter(b => b.block === block && b.region === region && b.id !== assetData.baseId);
+  
+  bases.forEach(base => {
+    const option = document.createElement('option');
+    option.value = base.id;
+    option.textContent = base.baseName;
+    option.dataset.baseName = base.baseName;
+    baseSelect.appendChild(option);
+  });
+  
+  baseSelect.disabled = false;
 }
 
 // 譲渡申請送信
@@ -82,8 +156,8 @@ async function handleSubmit(e) {
 
   try {
     const toBaseId = document.getElementById('toBaseId').value;
-    const toBaseSnapshot = await firebase.firestore().collection('baseMaster').doc(toBaseId).get();
-    const toBaseName = toBaseSnapshot.data().baseName;
+    const toBaseSelect = document.getElementById('toBaseId');
+    const toBaseName = toBaseSelect.options[toBaseSelect.selectedIndex].dataset.baseName;
 
     // 譲渡申請データ作成
     const transferData = {
