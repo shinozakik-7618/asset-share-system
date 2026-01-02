@@ -41,7 +41,7 @@
     }
     .filter-chip.active {
       background: #1976d2;
-      color: #1976d2;
+      color: white;
       border-color: #1976d2;
     }
   </style>
@@ -56,12 +56,12 @@
           <div class="header-user-base"></div>
         </div>
         <button class="btn" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;" onclick="location.href='/statistics.html'">📊 統計</button>
-        <button class="btn" onclick="location.href='/notifications.html'" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px; position: relative;">🔔 通知<span id="notificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: #f44336; color: #1976d2; border-radius: 10px; padding: 2px 6px; font-size: 11px; font-weight: bold; min-width: 20px; height: 20px; align-items: center; justify-content: center;"></span></button>
+        <button class="btn" onclick="location.href='/notifications.html'" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px; position: relative;">🔔 通知<span id="notificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: #f44336; color: white; border-radius: 10px; padding: 2px 6px; font-size: 11px; font-weight: bold; min-width: 20px; height: 20px; align-items: center; justify-content: center;"></span></button>
         <button class="btn" onclick="location.href='/user-register.html'" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;">⚙️ 設定</button>
         <button class="btn" onclick="location.href='/user-manual.html'" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;">📚 マニュアル</button>
-        <button onclick="location.href='/admin-manual.html'" class="btn" style="flex: 1; padding: 0.8rem; font-size: 15px; background: white; color: #1976d2; border: 2px solid #1976d2; border-radius: 8px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(245,87,108,0.3);">🔧 管理者マニュアル</button>
+        <button class="btn" onclick="location.href='/admin-manual.html'" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;">🔧 管理者マニュアル</button>
 
-        <button class="btn" style="padding: 8px 16px; font-size: 14px; background: #1976d2; color: #1976d2; border: 2px solid white;" onclick="signOut()">
+        <button class="btn" style="padding: 8px 16px; font-size: 14px; background: #1976d2; color: white; border: 2px solid white;" onclick="signOut()">
           ログアウト
         </button>
       </div>
@@ -74,12 +74,12 @@
     </div>
     <!-- タブ切り替え -->
     <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0;">
-      <button id="tabRegistered" class="main-tab-btn active" style="padding: 10px 20px; border: 2px solid #1976d2; background: none; cursor: pointer; border-bottom: 3px solid #1976d2; font-weight: 600; color: #1976d2;">登録資産</button>
-      <button id="tabForTransfer" class="main-tab-btn" style="padding: 10px 20px; border: 2px solid #1976d2; background: none; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; color: #666;">譲渡申請資産</button>
-      <button onclick="location.href='/transfer-list.html'" class="main-tab-btn" style="padding: 10px 20px; border: 2px solid #1976d2; background: #4caf50; color: #1976d2; cursor: pointer; border-radius: 8px; font-weight: 600; margin-left: 10px;">📋 譲渡申請一覧</button>
+      <button id="tabRegistered" class="main-tab-btn active" style="padding: 10px 20px; border: none; border-bottom: 3px solid #1976d2; background: none; cursor: pointer; font-weight: 600; color: #1976d2;">登録資産</button>
+      <button id="tabForTransfer" class="main-tab-btn" style="padding: 10px 20px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; color: #666;">譲渡申請資産</button>
+      <button onclick="location.href='/transfer-list.html'" class="main-tab-btn" style="padding: 10px 20px; border: none; background: #4caf50; color: white; cursor: pointer; border-radius: 8px; font-weight: 600; margin-left: 10px;">📋 譲渡申請一覧</button>
       <div style="flex: 1;"></div>
-      <button id="tabMyBase" class="tab-btn active" style="padding: 10px 20px; border: 2px solid #1976d2; background: none; cursor: pointer; border-bottom: 3px solid #1976d2; font-weight: 600; color: #1976d2;">自拠点の資産</button>
-      <button id="tabAllBases" class="tab-btn" style="padding: 10px 20px; border: 2px solid #1976d2; background: none; cursor: pointer; border-bottom: 3px solid transparent; font-weight: 600; color: #666;">全拠点の資産</button>
+      <button id="tabMyBase" class="tab-btn active" style="padding: 10px 20px; border: none; border-bottom: 3px solid #1976d2; background: none; cursor: pointer; font-weight: 600; color: #1976d2;">自拠点の資産</button>
+      <button id="tabAllBases" class="tab-btn" style="padding: 10px 20px; border: none; border-bottom: 3px solid transparent; background: none; cursor: pointer; font-weight: 600; color: #666;">全拠点の資産</button>
     </div>
 
     <!-- 拠点フィルター -->
