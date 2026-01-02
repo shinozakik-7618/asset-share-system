@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔧 管理者マニュアル - 拠点資産シェアシステム</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Meiryo, Arial, sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.8;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      text-align: center;
+      color: #f5576c;
+      font-size: 36px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .btn-pdf {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+      transition: all 0.3s;
+    }
+    .btn-pdf:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+    }
+    .toc {
+      background: linear-gradient(135deg, #fff0f5 0%, #ffe0e8 100%);
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 40px;
+    }
+    .toc h2 {
+      color: #f5576c;
+      font-size: 24px;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    .toc-list {
+      list-style: none;
+      padding: 0;
+    }
+    .toc-list li {
+      margin: 12px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    .toc-list li:before {
+      content: "🔧";
+      position: absolute;
+      left: 0;
+    }
+    .toc-list a {
+      color: #f5576c;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .toc-list a:hover {
+      color: #f093fb;
+      padding-left: 10px;
+    }
+    .section {
+      margin: 40px 0;
+      padding: 30px;
+      background: #fafafa;
+      border-radius: 15px;
+      border-left: 5px solid #f5576c;
+    }
+    .section h2 {
+      color: #f5576c;
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .step {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .step-number {
+      display: inline-block;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 35px;
+      font-weight: bold;
+      margin-right: 15px;
+      font-size: 18px;
+    }
+    .step-content {
+      display: inline-block;
+      vertical-align: top;
+      width: calc(100% - 60px);
+      font-size: 16px;
+      color: #333;
+    }
+    .tip-box {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      border-left: 5px solid #ffc107;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    .tip-box:before {
+      content: "💡 ";
+      font-size: 24px;
+    }
+    .warning-box {
+      background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+      border-left: 5px solid #f44336;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    .warning-box:before {
+      content: "⚠️ ";
+      font-size: 24px;
+    }
+    .success-box {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-left: 5px solid #4caf50;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    .success-box:before {
+      content: "✅ ";
+      font-size: 24px;
+    }
+    .code-box {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    .highlight {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 600;
+      color: #f57c00;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .info-table th {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-size: 16px;
+    }
+    .info-table td {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .info-table tr:last-child td {
+      border-bottom: none;
+    }
+    .screenshot-placeholder {
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      border: 3px dashed #ccc;
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      margin: 20px 0;
+      color: #999;
+      font-size: 18px;
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .container {
+        box-shadow: none;
+        padding: 20px;
+        max-width: 100%;
+      }
+      .header-buttons {
+        display: none;
+      }
+      .section {
+        page-break-inside: avoid;
+        background: white;
+        border: 1px solid #e0e0e0;
+      }
+      .step {
+        page-break-inside: avoid;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 15mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 管理者マニュアル</h1>
+    <div class="subtitle">拠点資産シェアシステムの管理者向け操作ガイド</div>
+    
+    <div class="header-buttons">
+      <button class="btn-pdf" onclick="printToPDF()">📄 PDF出力</button>
+    </div>
+
+    <!-- 目次 -->
+    <div class="toc">
+      <h2>📖 目次</h2>
+      <ul class="toc-list">
+        <li><a href="#overview">1. システム概要</a></li>
+        <li><a href="#initial-setup">2. 初期設定</a></li>
+        <li><a href="#user-management">3. ユーザー管理</a></li>
+        <li><a href="#base-management">4. 拠点マスタ管理</a></li>
+        <li><a href="#transfer-approval">5. 譲渡申請の承認・却下</a></li>
+        <li><a href="#expense-management">6. 経費振替の管理</a></li>
+        <li><a href="#statistics">7. 統計データの確認</a></li>
+        <li><a href="#troubleshooting">8. トラブルシューティング</a></li>
+        <li><a href="#backup">9. バックアップとメンテナンス</a></li>
+      </ul>
+    </div>
+
+    <!-- 1. システム概要 -->
+    <div class="section" id="overview">
+      <h2>🌐 1. システム概要</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">📋 システムの目的</h3>
+      <p style="font-size: 16px; line-height: 1.8;">
+        拠点資産シェアシステムは、複数の拠点間で資産を共有・譲渡するための管理システムです。<br>
+        各拠点の資産を一元管理し、効率的な資産活用を実現します。
+      </p>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🔑 主な機能</h3>
+      <div class="table-wrapper">
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>機能</th>
+              <th>説明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>資産登録・管理</strong></td>
+              <td>資産の登録、編集、削除、公開/非公開の管理</td>
+            </tr>
+            <tr>
+              <td><strong>譲渡申請</strong></td>
+              <td>他拠点への資産譲渡申請と承認フロー</td>
+            </tr>
+            <tr>
+              <td><strong>経費振替</strong></td>
+              <td>資産譲渡に伴う経費の振替処理</td>
+            </tr>
+            <tr>
+              <td><strong>通知機能</strong></td>
+              <td>申請・承認・却下の通知</td>
+            </tr>
+            <tr>
+              <td><strong>統計ダッシュボード</strong></td>
+              <td>資産数、カテゴリ、拠点別の統計表示</td>
+            </tr>
+            <tr>
+              <td><strong>履歴管理</strong></td>
+              <td>資産の登録・編集・ステータス変更履歴</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🏗️ システム構成</h3>
+      <div class="code-box">
+【技術スタック】
+・フロントエンド: HTML, CSS, JavaScript
+・バックエンド: Firebase (Authentication, Firestore, Storage, Hosting)
+・認証方式: Googleアカウント認証、メール/パスワード認証
+・データベース: Cloud Firestore (NoSQL)
+・ファイルストレージ: Firebase Storage
+・ホスティング: Firebase Hosting
+      </div>
+    </div>
+
+    <!-- 2. 初期設定 -->
+    <div class="section" id="initial-setup">
+      <h2>⚙️ 2. 初期設定</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">🔐 Firebaseプロジェクトの設定</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firebase Consoleにアクセス</strong><br>
+          https://console.firebase.google.com/ にアクセスします
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>プロジェクトを選択</strong><br>
+          プロジェクト名：<span class="highlight">base-asset-sharing-system</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>認証設定を確認</strong><br>
+          左メニューの「Authentication」→「Sign-in method」で以下を確認：<br>
+          ✅ Google（有効）<br>
+          ✅ メール/パスワード（有効）
+        </div>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">📊 Firestoreインデックスの確認</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestoreダッシュボードを開く</strong><br>
+          左メニューの「Firestore Database」をクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>インデックスタブを確認</strong><br>
+          以下のインデックスが作成されていることを確認：<br>
+          • <code>assetHistory</code>: assetId (昇順), timestamp (降順)<br>
+          • <code>notifications</code>: userId (昇順), read (昇順)<br>
+          • <code>notifications</code>: userId (昇順), timestamp (降順)
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>重要：</strong> インデックスが作成されていない場合、履歴や通知が正しく表示されません。<br>
+        エラーメッセージのURLから自動的にインデックスを作成できます。
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🗂️ Firestoreコレクション構造</h3>
+      
+      <div class="code-box">
+【主要コレクション】
+📁 users - ユーザー情報
+  └─ {userId}
+      ├─ displayName: string
+      ├─ email: string
+      ├─ baseId: string
+      ├─ baseName: string
+      ├─ region: string
+      ├─ block: string
+      └─ createdAt: timestamp
+
+📁 assets - 資産情報
+  └─ {assetId}
+      ├─ assetName: string
+      ├─ quantity: number
+      ├─ amount: number (税抜金額)
+      ├─ largeCategory: string
+      ├─ mediumCategory: string
+      ├─ userId: string
+      ├─ baseId: string
+      ├─ status: string (available/unavailable)
+      ├─ forTransfer: boolean
+      ├─ qrCodeText: string
+      └─ createdAt: timestamp
+
+📁 baseMaster - 拠点マスタ
+  └─ {baseId}
+      ├─ baseName: string
+      ├─ region: string
+      └─ block: string
+
+📁 transferRequests - 譲渡申請
+  └─ {requestId}
+      ├─ assetId: string
+      ├─ fromUserId: string
+      ├─ toBaseId: string
+      ├─ status: string (pending/approved/rejected)
+      └─ createdAt: timestamp
+
+📁 expenseTransfers - 経費振替
+  └─ {expenseId}
+      ├─ assetId: string
+      ├─ amount: number
+      ├─ fromBaseId: string
+      ├─ toBaseId: string
+      └─ createdAt: timestamp
+
+📁 assetHistory - 資産履歴
+  └─ {historyId}
+      ├─ assetId: string
+      ├─ action: string (created/edited/status_changed)
+      ├─ details: object
+      └─ timestamp: timestamp
+
+📁 notifications - 通知
+  └─ {notificationId}
+      ├─ userId: string
+      ├─ type: string
+      ├─ message: string
+      ├─ read: boolean
+      └─ timestamp: timestamp
+      </div>
+    </div>
+
+    <!-- 3. ユーザー管理 -->
+    <div class="section" id="user-management">
+      <h2>👥 3. ユーザー管理</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">➕ 新規ユーザーの追加</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firebase Consoleで認証設定</strong><br>
+          「Authentication」→「Users」→「Add user」
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>メールアドレスとパスワードを設定</strong><br>
+          • メールアドレス：ユーザーのメールアドレス<br>
+          • パスワード：初期パスワード（8文字以上）
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>ユーザーに初回ログイン情報を通知</strong><br>
+          メールアドレスとパスワードを安全な方法で伝えます
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">4</span>
+        <div class="step-content">
+          <strong>ユーザーに初回設定を依頼</strong><br>
+          初回ログイン時に、ユーザー登録画面で名前と拠点を設定してもらいます
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>ヒント：</strong> ユーザーは「⚙️ 設定」画面から、いつでも名前や拠点を変更できます
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🔍 ユーザー情報の確認</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestoreダッシュボードを開く</strong><br>
+          「Firestore Database」→「データ」タブ
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>usersコレクションを確認</strong><br>
+          各ユーザーのdocumentで以下を確認できます：<br>
+          • 名前（displayName）<br>
+          • メールアドレス（email）<br>
+          • 所属拠点（baseName, region, block）<br>
+          • 登録日時（createdAt）
+        </div>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">❌ ユーザーの削除</h3>
+      
+      <div class="warning-box">
+        <strong>注意：</strong> ユーザーを削除すると、そのユーザーが登録した資産も影響を受ける可能性があります。<br>
+        削除前に必ず確認してください。
+      </div>
+
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firebase Authenticationで削除</strong><br>
+          「Authentication」→「Users」→ 削除したいユーザーの「...」→「Delete account」
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>Firestoreのユーザーデータを削除</strong><br>
+          「Firestore Database」→「users」コレクション → 該当documentを削除
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 拠点マスタ管理 -->
+    <div class="section" id="base-management">
+      <h2>🏢 4. 拠点マスタ管理</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">➕ 新しい拠点の追加</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestoreダッシュボードを開く</strong><br>
+          「Firestore Database」→「データ」タブ
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>baseMasterコレクションを開く</strong><br>
+          コレクション一覧から「baseMaster」を選択
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>「ドキュメントを追加」をクリック</strong><br>
+          以下のフィールドを入力：
+        </div>
+      </div>
+
+      <div class="code-box">
+【入力例】
+ドキュメントID: （自動ID）
+
+フィールド:
+  baseName (string): "東京本社"
+  region (string): "関東"
+  block (string): "東日本"
+      </div>
+
+      <div class="tip-box">
+        <strong>ヒント：</strong> 拠点の階層は「ブロック > 地域 > 拠点」の3段階です
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">✏️ 拠点情報の編集</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>baseMasterコレクションで対象拠点を選択</strong><br>
+          編集したい拠点のdocumentをクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>フィールドの値を編集</strong><br>
+          鉛筆アイコンをクリックして値を変更し、保存します
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>注意：</strong> 拠点名を変更すると、既存の資産データには反映されません。<br>
+        拠点名変更時は、関連する資産のbaseNameも更新する必要があります。
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">📊 拠点データのエクスポート</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestore Consoleで拠点一覧を表示</strong><br>
+          baseMasterコレクションを開きます
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>データをコピー</strong><br>
+          必要に応じて、スクリーンショットやCSVエクスポートツールを使用します
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 譲渡申請の承認・却下 -->
+    <div class="section" id="transfer-approval">
+      <h2>✅ 5. 譲渡申請の承認・却下</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">📋 譲渡申請の確認方法</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>譲渡承認画面にアクセス</strong><br>
+          ホーム画面の左メニューから「譲渡承認」をクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>タブで申請状態を確認</strong><br>
+          • 承認待ち：未処理の申請<br>
+          • 承認済み：承認された申請<br>
+          • 却下済み：却下された申請
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>申請内容を確認</strong><br>
+          • 資産名<br>
+          • 申請者<br>
+          • 譲渡元拠点<br>
+          • 譲渡先拠点<br>
+          • 申請理由<br>
+          • 配送方法
+        </div>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">✅ 譲渡申請の承認</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>「承認する」ボタンをクリック</strong><br>
+          承認待ちの申請カードの緑色のボタンをクリックします
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>確認ダイアログでOKをクリック</strong><br>
+          「この譲渡申請を承認しますか？」→「OK」
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>自動処理の確認</strong><br>
+          承認すると、以下が自動的に実行されます：<br>
+          ✅ 申請ステータスが「承認済み」に変更<br>
+          ✅ 資産の所属拠点が譲渡先に変更<br>
+          ✅ 経費振替データが自動作成<br>
+          ✅ 申請者に通知が送信<br>
+          ✅ メール通知が送信
+        </div>
+      </div>
+
+      <div class="success-box">
+        <strong>承認完了！</strong> 申請者には自動的に通知が届きます
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">❌ 譲渡申請の却下</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>「却下する」ボタンをクリック</strong><br>
+          承認待ちの申請カードの赤色のボタンをクリックします
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>却下理由を入力</strong><br>
+          ダイアログで却下理由を入力します（必須）<br>
+          例：「在庫不足のため」「別の拠点に譲渡済み」
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>OKをクリック</strong><br>
+          却下理由と共に申請が却下されます
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">4</span>
+        <div class="step-content">
+          <strong>自動処理の確認</strong><br>
+          却下すると、以下が自動的に実行されます：<br>
+          ✅ 申請ステータスが「却下済み」に変更<br>
+          ✅ 却下理由が記録される<br>
+          ✅ 申請者に却下通知が送信<br>
+          ✅ 資産の状態は変更されない
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>ヒント：</strong> 却下理由は申請者に表示されるため、具体的で分かりやすい理由を記入してください
+      </div>
+    </div>
+
+    <!-- 6. 経費振替の管理 -->
+    <div class="section" id="expense-management">
+      <h2>💰 6. 経費振替の管理</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">📊 経費振替の確認</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>経費振替画面にアクセス</strong><br>
+          ホーム画面の左メニューから「経費振替」をクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>振替一覧を確認</strong><br>
+          以下の情報が表示されます：<br>
+          • 資産名<br>
+          • 振替元拠点<br>
+          • 振替先拠点<br>
+          • <span class="highlight">金額（税抜）</span><br>
+          • 振替日<br>
+          • 理由
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>ヒント：</strong> 経費振替データは、譲渡申請が承認されると自動的に作成されます
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">➕ 手動での経費振替登録</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>「➕ 経費振替を登録」ボタンをクリック</strong><br>
+          画面上部のボタンをクリックします
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>必要な情報を入力</strong><br>
+          • 資産名<br>
+          • 振替元拠点<br>
+          • 振替先拠点<br>
+          • <span class="highlight">金額（税抜）</span><br>
+          • 振替日<br>
+          • 理由
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>「登録する」ボタンをクリック</strong><br>
+          入力内容を確認して登録します
+        </div>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🗑️ 経費振替の削除</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>削除したい振替の「削除」ボタンをクリック</strong><br>
+          振替カードの赤色の削除ボタンをクリックします
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>確認ダイアログでOKをクリック</strong><br>
+          削除を確認して実行します
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>注意：</strong> 削除した経費振替データは復元できません
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">📤 経費振替データのエクスポート</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestoreダッシュボードを開く</strong><br>
+          「Firestore Database」→「expenseTransfers」コレクション
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>データをエクスポート</strong><br>
+          必要に応じて、サードパーティツールを使用してCSV形式でエクスポートできます
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 統計データの確認 -->
+    <div class="section" id="statistics">
+      <h2>📊 7. 統計データの確認</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">📈 統計ダッシュボードの見方</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>統計画面にアクセス</strong><br>
+          ホーム画面のヘッダーにある「📊 統計」ボタンをクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>4つの統計カードを確認</strong><br>
+          • 📦 総資産数：システム全体の資産数<br>
+          • 📝 登録資産数：自分が登録した資産数<br>
+          • ⏳ 承認待ち：処理待ちの譲渡申請数<br>
+          • 📂 カテゴリ数：資産のカテゴリ種類数
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>グラフで視覚的に分析</strong><br>
+          • カテゴリ別資産数（円グラフ）<br>
+          • 月別登録数（棒グラフ）<br>
+          • 拠点別資産数（棒グラフ）
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>活用方法：</strong><br>
+        • カテゴリ別グラフで資産の偏りを確認<br>
+        • 月別グラフで登録の推移を分析<br>
+        • 拠点別グラフで各拠点の資産保有状況を把握
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🔍 詳細データの確認</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firestoreで直接確認</strong><br>
+          より詳細なデータが必要な場合は、Firestore Consoleで直接確認できます
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>クエリを実行</strong><br>
+          特定の条件でデータを抽出する場合は、Firestoreのクエリ機能を使用します
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. トラブルシューティング -->
+    <div class="section" id="troubleshooting">
+      <h2>🔧 8. トラブルシューティング</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">❌ よくあるエラーと対処法</h3>
+      
+      <div class="warning-box">
+        <strong>エラー：「The query requires an index」</strong><br>
+        <strong>原因：</strong> Firestoreのインデックスが作成されていない<br>
+        <strong>対処法：</strong><br>
+        1. エラーメッセージ内のURLをクリック<br>
+        2. 「インデックスを作成」ボタンをクリック<br>
+        3. 2〜5分待つ<br>
+        4. ステータスが「有効」になったら完了
+      </div>
+
+      <div class="warning-box">
+        <strong>エラー：「firebase.storage is not a function」</strong><br>
+        <strong>原因：</strong> Firebase Storage SDKが読み込まれていない<br>
+        <strong>対処法：</strong><br>
+        HTMLファイルに以下のスクリプトタグを追加：<br>
+        <code>&lt;script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"&gt;&lt;/script&gt;</code>
+      </div>
+
+      <div class="warning-box">
+        <strong>問題：履歴が表示されない</strong><br>
+        <strong>原因：</strong> assetHistoryコレクションのインデックスが未作成<br>
+        <strong>対処法：</strong><br>
+        1. 履歴画面を開いてエラーを確認<br>
+        2. ブラウザのコンソール（F12）でエラーURLを確認<br>
+        3. URLをクリックしてインデックスを作成
+      </div>
+
+      <div class="warning-box">
+        <strong>問題：通知が届かない</strong><br>
+        <strong>原因：</strong> notifications.jsが読み込まれていない、またはインデックスが未作成<br>
+        <strong>対処法：</strong><br>
+        1. HTMLファイルに&lt;script src="/js/notifications.js"&gt;&lt;/script&gt;が含まれているか確認<br>
+        2. notificationsコレクションのインデックスを確認<br>
+        3. ブラウザのコンソールでエラーを確認
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🔍 デバッグ方法</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>ブラウザの開発者ツールを開く</strong><br>
+          Chrome: Command + Option + J (Mac) / F12 (Windows)<br>
+          Safari: Command + Option + C (Mac)
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>Consoleタブでエラーを確認</strong><br>
+          赤色のエラーメッセージを確認します
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>Networkタブで通信を確認</strong><br>
+          API呼び出しが正常に行われているか確認します
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>ヒント：</strong> エラーメッセージをコピーしてGoogle検索すると、解決策が見つかることが多いです
+      </div>
+    </div>
+
+    <!-- 9. バックアップとメンテナンス -->
+    <div class="section" id="backup">
+      <h2>💾 9. バックアップとメンテナンス</h2>
+      
+      <h3 style="color: #f5576c; margin-top: 30px;">📤 データのエクスポート</h3>
+      
+      <div class="step">
+        <span class="step-number">1</span>
+        <div class="step-content">
+          <strong>Firebase Consoleを開く</strong><br>
+          https://console.firebase.google.com/
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">2</span>
+        <div class="step-content">
+          <strong>Firestoreダッシュボードを開く</strong><br>
+          左メニューの「Firestore Database」をクリック
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-number">3</span>
+        <div class="step-content">
+          <strong>エクスポート機能を使用</strong><br>
+          Firebase CLIまたはサードパーティツールを使用してデータをエクスポートします
+        </div>
+      </div>
+
+      <div class="code-box">
+【Firebase CLIでのエクスポート例】
+firebase firestore:export gs://[BUCKET_NAME]/[EXPORT_PREFIX]
+
+例：
+firebase firestore:export gs://base-asset-sharing-system.appspot.com/backups/2024-01-02
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🔄 定期メンテナンス</h3>
+      
+      <div class="table-wrapper">
+        <table class="info-table">
+          <thead>
+            <tr>
+              <th>頻度</th>
+              <th>作業内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>毎日</strong></td>
+              <td>• 譲渡申請の確認と処理<br>• エラーログの確認</td>
+            </tr>
+            <tr>
+              <td><strong>毎週</strong></td>
+              <td>• 統計データの確認<br>• ユーザーからの問い合わせ対応</td>
+            </tr>
+            <tr>
+              <td><strong>毎月</strong></td>
+              <td>• データのバックアップ<br>• 不要なデータの削除<br>• システムパフォーマンスの確認</td>
+            </tr>
+            <tr>
+              <td><strong>四半期</strong></td>
+              <td>• セキュリティ設定の見直し<br>• ユーザー権限の確認<br>• システムアップデートの確認</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">🚨 緊急時の対応</h3>
+      
+      <div class="warning-box">
+        <strong>システムダウン時の対応手順：</strong><br>
+        1️⃣ Firebase Status（https://status.firebase.google.com/）でサービス状況を確認<br>
+        2️⃣ Firebaseコンソールでプロジェクトの状態を確認<br>
+        3️⃣ ブラウザのコンソールでエラーを確認<br>
+        4️⃣ 必要に応じてFirebaseサポートに問い合わせ
+      </div>
+
+      <h3 style="color: #f5576c; margin-top: 30px;">📞 サポート連絡先</h3>
+      
+      <div class="success-box">
+        <strong>Firebase サポート：</strong><br>
+        • Firebase Console: https://console.firebase.google.com/<br>
+        • Firebase ドキュメント: https://firebase.google.com/docs<br>
+        • Firebase サポート: https://firebase.google.com/support
+      </div>
+    </div>
+
+    <!-- フッター -->
+    <div style="text-align: center; margin-top: 50px; padding: 30px; background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%); border-radius: 15px;">
+      <p style="font-size: 14px; color: #666; margin: 0;">
+        拠点資産シェアシステム 管理者マニュアル<br>
+        最終更新日：2024年1月
+      </p>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    function printToPDF() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
