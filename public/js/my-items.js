@@ -95,7 +95,7 @@ function createAssetCard(asset) {
           <button onclick="editAsset('${asset.id}')" class="btn btn-primary" style="flex: 1; padding: 0.5rem;">編集</button>
           <button onclick="transferAsset('${asset.id}')" class="btn btn-secondary" style="flex: 1; padding: 0.5rem;">譲渡</button>
           <button onclick="location.href='/asset-history.html?id=${asset.id}'" class="btn" style="flex: 1; padding: 0.5rem; background: #9c27b0; color: white;">📜 履歴</button>
-          ${!asset.forTransfer ? `<button onclick="publishForTransfer('${asset.id}'); event.stopPropagation();" class="btn" style="flex: 1; padding: 0.5rem; background: #4caf50; color: white;">譲渡資産として公開</button>` : `<span style="flex: 1; padding: 0.5rem; background: #e8f5e9; color: #2e7d32; text-align: center; border-radius: 4px; font-size: 13px;">✓ 公開中</span>`}
+          ${!asset.forTransfer ? `<button onclick="publishForTransfer('${asset.id}'); event.stopPropagation();" class="btn" style="flex: 1; padding: 0.5rem; background: #4caf50; color: white;">譲渡資産として公開</button>` : `<button onclick="unpublishForTransfer('${asset.id}'); event.stopPropagation();" class="btn" style="flex: 1; padding: 0.5rem; background: #e8f5e9; color: #2e7d32; border: 2px solid #2e7d32;">✓ 公開中 (解除)</button>`}
           ${asset.qrCodeText ? `<button onclick="showQRCode('${asset.id}', '${asset.assetName}', '${asset.qrCodeText}'); event.stopPropagation();" class="btn" style="flex: 1; padding: 0.5rem; background: #2196f3; color: white;">📱 QRコード</button>` : ""}
           <button onclick="toggleStatus('${asset.id}', '${asset.status}')" class="btn" style="flex: 1; padding: 0.5rem;">
             ${asset.status === 'available' ? '非公開にする' : '公開する'}
@@ -420,5 +420,29 @@ async function bulkToggleStatus() {
   } catch (error) {
     console.error('一括更新エラー:', error);
     alert('更新に失敗しました');
+  }
+}
+
+// 譲渡資産公開を解除
+async function unpublishForTransfer(assetId) {
+  if (!confirm('譲渡資産の公開を解除しますか？')) {
+    return;
+  }
+  
+  try {
+    await firebase.firestore()
+      .collection('assets')
+      .doc(assetId)
+      .update({
+        forTransfer: false,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    
+    alert('譲渡資産の公開を解除しました');
+    loadMyItems();
+    
+  } catch (error) {
+    console.error('公開解除エラー:', error);
+    alert('エラーが発生しました');
   }
 }
