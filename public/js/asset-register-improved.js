@@ -220,7 +220,16 @@ async function handleSubmit(e) {
     await docRef.update({ qrCodeText: qrCodeText });
     
 
+    // 履歴記録
+    console.log('履歴記録を開始...', assetId);
+    await recordAssetHistory(assetId, 'created', {
+      '資産名': assetData.name,
+      'カテゴリ': assetData.largeCategoryName || '未設定',
+      '拠点': assetData.baseName || '未設定'
+    });
+
     alert('資産を登録しました！');
+    console.log('履歴記録完了');
     window.location.href = '/my-items.html';
 
   } catch (error) {

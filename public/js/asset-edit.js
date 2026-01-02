@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .doc(assetId)
         .update(updateData);
       
+      // 履歴記録
+      await recordAssetHistory(assetId, 'edited', {
+        '更新内容': '資産情報を編集'
+      });
+
       alert('保存しました');
       window.location.href = '/my-items.html';
       

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>資産履歴 - 拠点資産シェアシステム</title>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📜 資産履歴</div>
+      <div class="header-user">
+        <button class="btn" onclick="history.back()" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;">← 戻る</button>
+        <button class="btn" style="padding: 8px 16px; font-size: 14px; background: #1976d2; color: white; border: 2px solid white;" onclick="signOut()">ログアウト</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
+      <h2 style="margin: 0 0 10px 0; color: #333;">資産情報</h2>
+      <div id="assetInfo" style="color: #666;">読み込み中...</div>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <h2 style="margin: 0 0 20px 0; color: #333;">📋 履歴タイムライン</h2>
+      <div id="historyTimeline">
+        <p style="text-align: center; color: #999; padding: 20px;">読み込み中...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/asset-history.js"></script>
+  <script>
+    // URLパラメータから資産IDを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const assetId = urlParams.get('id');
+
+    if (!assetId) {
+      alert('資産IDが指定されていません');
+      window.location.href = '/my-items.html';
+    }
+
+    // ページ読み込み時
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        await loadAssetInfo();
+        await loadHistory();
+      } else {
+        window.location.href = '/index.html';
+      }
+    });
+
+    // 資産情報を読み込み
+    async function loadAssetInfo() {
+      try {
+        const doc = await firebase.firestore()
+          .collection('assets')
+          .doc(assetId)
+          .get();
+        
+        if (!doc.exists) {
+          alert('資産が見つかりません');
+          window.location.href = '/my-items.html';
+          return;
+        }
+
+        const asset = doc.data();
+        document.getElementById('assetInfo').innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+            <div>
+              <div style="font-size: 12px; color: #999; margin-bottom: 5px;">資産名</div>
+              <div style="font-weight: 600; color: #333;">${asset.name}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #999; margin-bottom: 5px;">カテゴリ</div>
+              <div style="font-weight: 600; color: #333;">${asset.largeCategoryName || '未設定'}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #999; margin-bottom: 5px;">拠点</div>
+              <div style="font-weight: 600; color: #333;">${asset.baseName || '未設定'}</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #999; margin-bottom: 5px;">ステータス</div>
+              <div style="font-weight: 600; color: ${asset.status === 'available' ? '#4caf50' : '#999'};">
+                ${asset.status === 'available' ? '✅ 公開中' : '⏸️ 非公開'}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('資産情報読み込みエラー:', error);
+        document.getElementById('assetInfo').innerHTML = '<p style="color: #f44336;">読み込みに失敗しました</p>';
+      }
+    }
+
+    // 履歴を読み込み
+    async function loadHistory() {
+      try {
+        const history = await getAssetHistory(assetId);
+        const html = renderHistoryTimeline(history);
+        document.getElementById('historyTimeline').innerHTML = html;
+      } catch (error) {
+        console.error('履歴読み込みエラー:', error);
+        document.getElementById('historyTimeline').innerHTML = '<p style="color: #f44336; text-align: center;">読み込みに失敗しました</p>';
+      }
+    }
+  </script>
+</body>
+</html>
