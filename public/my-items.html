@@ -25,12 +25,37 @@
   </header>
 
   <main class="container main-content">
+
+    <!-- 検索・フィルター -->
+    <div class="form-container" style="margin-bottom: 20px;">
+      <div class="form-group">
+        <input type="text" id="searchBox" placeholder="🔍 資産名で検索..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <select id="categoryFilter" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+          <option value="">すべての分類</option>
+          <option value="PC・IT機器">PC・IT機器</option>
+          <option value="机">机</option>
+          <option value="椅子">椅子</option>
+          <option value="事務用品・備品">事務用品・備品</option>
+          <option value="什器等">什器等</option>
+          <option value="媒体">媒体</option>
+          <option value="デポ備品">デポ備品</option>
+          <option value="その他">その他</option>
+        </select>
+        <select id="statusFilter" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+          <option value="">すべて</option>
+          <option value="available">公開中</option>
+          <option value="unavailable">非公開</option>
+        </select>
+      </div>
+    </div>
     <div id="loading" style="text-align: center; padding: 2rem;">
       <p>読み込み中...</p>
     </div>
     
     <div id="content" style="display: none;">
-      <div id="itemsList"></div>
+      <div id="assetList"></div>
       <div id="noItems" style="display: none; text-align: center; padding: 4rem 2rem; color: #666;">
         <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
         <p>登録された資産がありません</p>

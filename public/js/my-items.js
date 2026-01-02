@@ -1,5 +1,16 @@
 
 // 認証状態の監視
+// 検索・フィルター用の変数
+let allAssets = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("searchBox")) {
+    document.getElementById("searchBox").addEventListener("input", applyFilters);
+    document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+    document.getElementById("statusFilter").addEventListener("change", applyFilters);
+  }
+});
+
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
     currentUser = user;
@@ -13,7 +24,7 @@ firebase.auth().onAuthStateChanged((user) => {
 async function loadMyItems() {
   const loading = document.getElementById('loading');
   const content = document.getElementById('content');
-  const itemsList = document.getElementById('itemsList');
+  const assetList = document.getElementById('assetList');
   const noItems = document.getElementById('noItems');
   
   try {
@@ -31,11 +42,20 @@ async function loadMyItems() {
       return;
     }
     
-    itemsList.innerHTML = '';
+    assetList.innerHTML = '';
+    // 全資産を保存
+    allAssets = [];
     snapshot.forEach(doc => {
       const asset = doc.data();
       asset.id = doc.id;
-      itemsList.appendChild(createAssetCard(asset));
+      allAssets.push(asset);
+    });
+    
+    // 最初は全件表示
+    snapshot.forEach(doc => {
+      const asset = doc.data();
+      asset.id = doc.id;
+      assetList.appendChild(createAssetCard(asset));
     });
     
   } catch (error) {
@@ -235,6 +255,15 @@ function exportToCSV() {
     .orderBy('createdAt', 'desc')
     .get()
     .then(snapshot => {
+    // 全資産を保存
+    allAssets = [];
+    snapshot.forEach(doc => {
+      const asset = doc.data();
+      asset.id = doc.id;
+      allAssets.push(asset);
+    });
+    
+    // 最初は全件表示
       snapshot.forEach(doc => {
         const asset = doc.data();
         const row = [
@@ -268,4 +297,35 @@ function exportToCSV() {
       console.error('CSV出力エラー:', error);
       alert('CSV出力に失敗しました');
     });
+}
+
+// フィルター適用
+function applyFilters() {
+  const searchText = document.getElementById('searchBox').value.toLowerCase();
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+
+  const filtered = allAssets.filter(asset => {
+    const matchSearch = !searchText || (asset.assetName && asset.assetName.toLowerCase().includes(searchText));
+    const matchCategory = !categoryFilter || asset.largeCategory === categoryFilter || asset.largeCategoryName === categoryFilter;
+    const matchStatus = !statusFilter || asset.status === statusFilter;
+    return matchSearch && matchCategory && matchStatus;
+  });
+
+  displayFilteredAssets(filtered);
+}
+
+// フィルター後の資産を表示
+function displayFilteredAssets(assets) {
+  const assetList = document.getElementById('assetList');
+  
+  if (assets.length === 0) {
+    assetList.innerHTML = '<p style="text-align: center; color: #666;">条件に一致する資産がありません</p>';
+    return;
+  }
+  
+  assetList.innerHTML = '';
+  assets.forEach(asset => {
+    assetList.appendChild(createAssetCard(asset));
+  });
 }
