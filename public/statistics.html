@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>統計情報 - 拠点資産シェアシステム</title>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">📊 統計情報</div>
+      <button onclick="location.href='/home.html'" class="btn" style="margin: 10px 0; background: white; color: #1976d2; border: 2px solid #1976d2; font-weight: 500; font-size: 14px;">🏠 ホームに戻る</button>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- 統計情報 -->
+    <div id="statistics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 20px; background: #f5f5f5; border-radius: 12px;">
+      <div style="background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; font-weight: bold; color: #1976d2;" id="totalAssets">0</div>
+        <div style="color: #666; margin-top: 5px;">総資産数</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; font-weight: bold; color: #4caf50;" id="myAssets">0</div>
+        <div style="color: #666; margin-top: 5px;">登録資産数</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; font-weight: bold; color: #ff9800;" id="pendingRequests">0</div>
+        <div style="color: #666; margin-top: 5px;">承認待ち申請</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="font-size: 32px; font-weight: bold; color: #9c27b0;" id="categoryCount">0</div>
+        <div style="color: #666; margin-top: 5px;">カテゴリ数</div>
+      </div>
+    </div>
+
+    <!-- 詳細統計グラフ -->
+    <div id="detailedStats" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <h3 style="margin: 0 0 20px 0; color: #333;">📊 詳細統計</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+        <div>
+          <h4 style="margin: 0 0 15px 0; color: #666; font-size: 14px;">カテゴリ別資産数</h4>
+          <canvas id="categoryChart" style="max-height: 250px;"></canvas>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 15px 0; color: #666; font-size: 14px;">月別登録推移</h4>
+          <canvas id="monthlyChart" style="max-height: 250px;"></canvas>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 15px 0; color: #666; font-size: 14px;">拠点別資産数 TOP5</h4>
+          <canvas id="baseChart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/statistics.js"></script>
+</body>
+</html>
