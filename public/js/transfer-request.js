@@ -178,6 +178,16 @@ async function handleSubmit(e) {
     // Firestore保存
     await firebase.firestore().collection('transferRequests').add(transferData);
 
+
+    // 資産所有者に通知を送信
+    const currentUserDoc = await firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get();
+    const currentUserData = currentUserDoc.data();
+    await createNotification(assetData.userId, 'transfer_request', {
+      assetId: assetData.id,
+      assetName: assetData.assetName,
+      fromUserName: currentUserData.name || firebase.auth().currentUser.email,
+      message: `${assetData.assetName}の譲渡申請が届きました`
+    });
     alert('譲渡申請を送信しました！');
 
     // メール下書き作成

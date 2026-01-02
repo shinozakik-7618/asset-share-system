@@ -112,6 +112,16 @@ async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBa
       approvedBy: firebase.auth().currentUser.uid
     });
 
+    // 申請者に通知を送信
+    const transferDoc = await firebase.firestore().collection('transferRequests').doc(requestId).get();
+    const transferData = transferDoc.data();
+    await createNotification(transferData.fromUserId, 'transfer_approved', {
+      assetId: assetId,
+      assetName: assetName,
+      fromUserName: '管理者',
+      message: `${assetName}の譲渡申請が承認されました`
+    });
+
     // 2. 資産の拠点を更新
     await firebase.firestore().collection('assets').doc(assetId).update({
       baseId: toBaseId,
@@ -142,7 +152,7 @@ async function approveRequest(requestId, assetId, fromBaseId, fromBaseName, toBa
 
     // メール通知内容を表示
         // メール内容生成（改行を正しく処理）
-        const transferData = { deliveryMethod: deliveryMethod };
+        const expenseTransferData = { deliveryMethod: deliveryMethod };
         const emailContent = [
           '【経費振替通知】' + assetName + 'の譲渡が承認されました',
           '',
@@ -190,6 +200,16 @@ async function rejectRequest(requestId) {
       rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
       rejectedBy: firebase.auth().currentUser.uid,
       rejectedReason: reason
+    });
+
+    // 申請者に通知を送信
+    const transferDoc = await firebase.firestore().collection('transferRequests').doc(requestId).get();
+    const transferData = transferDoc.data();
+    await createNotification(transferData.fromUserId, 'transfer_rejected', {
+      assetId: '',
+      assetName: '',
+      fromUserName: '管理者',
+      message: `譲渡申請が却下されました（理由: ${reason}）`
     });
 
     alert('譲渡申請を却下しました');

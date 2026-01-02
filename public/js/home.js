@@ -586,3 +586,12 @@ function drawBaseChart(data) {
 }
 
 // loadStatisticsの後にグラフも読み込む
+
+// 通知バッジを定期的に更新
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    updateNotificationBadge();
+    // 30秒ごとに更新
+    setInterval(updateNotificationBadge, 30000);
+  }
+});

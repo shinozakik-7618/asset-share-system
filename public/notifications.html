@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>通知 - 拠点資産シェアシステム</title>
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="header-title">🔔 通知</div>
+      <div class="header-user">
+        <button class="btn" onclick="history.back()" style="padding: 8px 16px; font-size: 14px; background: white; color: #1976d2; border: 2px solid #1976d2; margin-right: 10px;">← 戻る</button>
+        <button class="btn" onclick="markAllAsRead(firebase.auth().currentUser.uid).then(() => loadNotifications())" style="padding: 8px 16px; font-size: 14px; background: #4caf50; color: white; border: 2px solid white; margin-right: 10px;">✓ すべて既読</button>
+        <button class="btn" style="padding: 8px 16px; font-size: 14px; background: #1976d2; color: white; border: 2px solid white;" onclick="signOut()">ログアウト</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div id="notificationList" style="display: flex; flex-direction: column; gap: 10px;">
+      <p style="text-align: center; color: #999; padding: 40px;">読み込み中...</p>
+    </div>
+  </main>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script>
+    // ページ読み込み時
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        loadNotifications();
+      } else {
+        window.location.href = '/index.html';
+      }
+    });
+
+    // 通知を読み込み
+    async function loadNotifications() {
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) return;
+
+      try {
+        const notifications = await getNotifications(currentUser.uid);
+        
+        if (notifications.length === 0) {
+          document.getElementById('notificationList').innerHTML = 
+            '<p style="text-align: center; color: #999; padding: 40px;">通知はありません</p>';
+          return;
+        }
+
+        const typeIcons = {
+          'transfer_request': '📮',
+          'transfer_approved': '✅',
+          'transfer_rejected': '❌'
+        };
+
+        const typeColors = {
+          'transfer_request': '#2196f3',
+          'transfer_approved': '#4caf50',
+          'transfer_rejected': '#f44336'
+        };
+
+        const html = notifications.map(notif => {
+          const date = notif.timestamp ? new Date(notif.timestamp.toDate()).toLocaleString('ja-JP') : '不明';
+          const icon = typeIcons[notif.type] || '📢';
+          const color = typeColors[notif.type] || '#666';
+          const bgColor = notif.read ? '#f5f5f5' : '#e3f2fd';
+
+          return `
+            <div onclick="handleNotificationClick('${notif.id}', '${notif.assetId}')" 
+                 style="padding: 15px; background: ${bgColor}; border-left: 4px solid ${color}; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <div style="display: flex; gap: 15px; align-items: start;">
+                <div style="font-size: 28px;">${icon}</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: ${notif.read ? '400' : '600'}; color: #333; margin-bottom: 5px;">
+                    ${notif.message}
+                  </div>
+                  <div style="font-size: 13px; color: #666; margin-top: 5px;">
+                    ${notif.fromUserName ? `${notif.fromUserName} | ` : ''}${date}
+                  </div>
+                </div>
+                ${!notif.read ? '<div style="width: 8px; height: 8px; background: #2196f3; border-radius: 50%; margin-top: 5px;"></div>' : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('notificationList').innerHTML = html;
+      } catch (error) {
+        console.error('通知読み込みエラー:', error);
+        document.getElementById('notificationList').innerHTML = 
+          '<p style="text-align: center; color: #f44336; padding: 40px;">読み込みに失敗しました</p>';
+      }
+    }
+
+    // 通知クリック時
+    async function handleNotificationClick(notificationId, assetId) {
+      await markAsRead(notificationId);
+      if (assetId) {
+        window.location.href = `/asset-history.html?id=${assetId}`;
+      } else {
+        loadNotifications();
+      }
+    }
+  </script>
+</body>
+</html>
