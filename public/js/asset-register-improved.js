@@ -188,6 +188,7 @@ async function handleSubmit(e) {
     const assetData = {
       assetName: document.getElementById('assetName').value,
       quantity: parseInt(document.getElementById('quantity').value),
+      amount: parseInt(document.getElementById('amount').value) || 0,
       largeCategory: document.getElementById('largeCategory').value,
       mediumCategory: document.getElementById('mediumCategory').value,
       largeCategoryName: document.getElementById("largeCategory").selectedOptions[0]?.text || "",
