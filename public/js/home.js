@@ -230,7 +230,7 @@ async function loadItems() {
     console.error('データ取得エラー:', error);
     loading.style.display = 'none';
     emptyState.style.display = 'block';
-    document.querySelector('.empty-message').textContent = 'データの取得に失敗しました';
+    document.querySelector('.empty-message').textContent = (currentMainTab === 'forTransfer' ? '譲渡申請資産はありません' : '登録資産はありません');
   }
 }
 
